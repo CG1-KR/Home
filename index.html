@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>정보보안 컨설턴트 포트폴리오 - 최지원</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- 네비게이션 바 -->
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top custom-navbar">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="bi bi-shield-check me-2"></i>
+                <span class="brand-text">최지원 포트폴리오</span>
+            </a>
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#home">홈</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#about">소개</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#projects">프로젝트</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#experience">경력</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#contact">연락처</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 히어로 섹션 -->
+    <section id="home" class="hero-section">
+        <div class="container">
+            <div class="row align-items-center min-vh-100">
+                <div class="col-lg-6">
+                    <div class="hero-content">
+                        <div class="hero-badge">
+                            <i class="bi bi-shield-check me-2"></i>
+                            정보보안 전문가
+                        </div>
+                        <h1 class="hero-title">
+                            안녕하세요,<br>
+                            <span class="highlight">최지원</span>입니다
+                        </h1>
+                        <p class="hero-description">
+                            3년 7개월간의 실무 경험을 바탕으로 정부기관과 금융기관의 
+                            보안 취약점을 발견하고 해결하는 정보보안 컨설턴트입니다.
+                        </p>
+                        <div class="hero-stats">
+                            <div class="stat-item">
+                                <div class="stat-number">20+</div>
+                                <div class="stat-label">프로젝트</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-number">3.7년</div>
+                                <div class="stat-label">실무 경력</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-number">취약점 진단 및 모의해킹</div>
+                                <div class="stat-label">주요 업무</div>
+                            </div>
+                        </div>
+                        <div class="hero-buttons">
+                            <a href="#projects" class="btn btn-primary">
+                                프로젝트 보기
+                                <i class="bi bi-arrow-right ms-2"></i>
+                            </a>
+                            <a href="#contact" class="btn btn-outline">
+                                연락하기
+                                <i class="bi bi-envelope ms-2"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="hero-visual">
+                        <!-- 🔥 기존 visual-card를 tech-stack-card로 교체 -->
+                        <div class="tech-stack-card">
+                            <div class="tech-header">
+                                <div class="header-icon">
+                                    <i class="bi bi-code-slash"></i>
+                                </div>
+                                <h3>핵심 기술 스택</h3>
+                                <p>정보보안 실무 전문 분야</p>
+                            </div>
+                            
+                            <div class="tech-grid">
+                                <div class="tech-item" tabindex="0" role="button" aria-label="Web 기술 정보 보기">
+                                    <div class="tech-icon web">🌐</div>
+                                    <div class="tech-name">Web</div>
+                                </div>
+                                <div class="tech-item" tabindex="0" role="button" aria-label="Mobile 기술 정보 보기">
+                                    <div class="tech-icon mobile">📱</div>
+                                    <div class="tech-name">Mobile</div>
+                                </div>
+                                <div class="tech-item" tabindex="0" role="button" aria-label="Cloud 기술 정보 보기">
+                                    <div class="tech-icon cloud">☁️</div>
+                                    <div class="tech-name">Cloud</div>
+                                </div>
+                                <div class="tech-item" tabindex="0" role="button" aria-label="AI 기술 정보 보기">
+                                    <div class="tech-icon ai">🤖</div>
+                                    <div class="tech-name">AI</div>
+                                </div>
+                                <div class="tech-item" tabindex="0" role="button" aria-label="Python 기술 정보 보기">
+                                    <div class="tech-icon python">🐍</div>
+                                    <div class="tech-name">Python</div>
+                                </div>
+                                <div class="tech-item" tabindex="0" role="button" aria-label="JavaScript 기술 정보 보기">
+                                    <div class="tech-icon js">⚡</div>
+                                    <div class="tech-name">JavaScript</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 소개 섹션 -->
+    <section id="about" class="about-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 mx-auto text-center">
+                    <h2 class="section-title">전문 분야</h2>
+                    <p class="section-subtitle">다양한 환경에서의 보안 컨설팅 경험</p>
+                </div>
+            </div>
+            <div class="row g-4 mt-4">
+                <div class="col-md-6 col-lg-3">
+                    <div class="service-card">
+                        <div class="service-icon">
+                            <i class="bi bi-globe"></i>
+                        </div>
+                        <h4>웹 보안</h4>
+                        <p>웹 취약점 진단 및 모의해킹</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="service-card">
+                        <div class="service-icon">
+                            <i class="bi bi-phone"></i>
+                        </div>
+                        <h4>모바일 보안</h4>
+                        <p>iOS/Android 앱 취약점 진단</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="service-card">
+                        <div class="service-icon">
+                            <i class="bi bi-cloud"></i>
+                        </div>
+                        <h4>클라우드 보안</h4>
+                        <p>AWS/Azure 클라우드 환경 취약점 진단</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="service-card">
+                        <div class="service-icon">
+                            <i class="bi bi-server"></i>
+                        </div>
+                        <h4>AI 보안</h4>
+                        <p>AI 서비스 취약점 진단</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 프로젝트 섹션 -->
+    <section id="projects" class="projects-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 mx-auto text-center mb-5">
+                    <h2 class="section-title">주요 프로젝트</h2>
+                    <p class="section-subtitle">정부기관 및 금융기관 대상 보안 컨설팅 프로젝트</p>
+                </div>
+            </div>
+
+            <!-- 프로젝트 필터 -->
+            <div class="row mb-5">
+                <div class="col-12">
+                    <div class="filter-tabs">
+                        <button class="filter-btn active" data-filter="all">전체</button>
+                        <button class="filter-btn" data-filter="web">웹 보안</button>
+                        <button class="filter-btn" data-filter="app">앱 보안</button>
+                        <button class="filter-btn" data-filter="cloud">클라우드</button>
+                        <button class="filter-btn" data-filter="infra">인프라</button>
+                        <button class="filter-btn" data-filter="hacking">모의해킹</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 프로젝트 그리드 -->
+            <div class="row g-4">
+                <!-- 현재 진행 프로젝트 -->
+                <div class="col-lg-6 project-item" data-category="web app cloud">
+                    <div class="project-card featured">
+                        <div class="project-status">진행중</div>
+                        <div class="project-info">
+                            <h3 class="project-title">대형 통신사 K그룹 통합보안검증</h3>
+                            <p class="project-client">대형 통신사 K사</p>
+                            <p class="project-period">2023.04 - 현재</p>
+                            <div class="project-tags">
+                                <span class="tag web">웹</span>
+                                <span class="tag app">앱</span>
+                                <span class="tag cloud">클라우드</span>
+                            </div>
+                            <p class="project-desc">대형 통신사 그룹의 ITO 통합보안검증을 지속 수행하며, PL 대무 역할로 신규 취약점을 발견했습니다.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2023년 프로젝트 -->
+                <div class="col-lg-6 project-item" data-category="web infra">
+                    <div class="project-card">
+                        <div class="project-info">
+                            <h3 class="project-title">대전교육정보원 시스템 취약점 점검</h3>
+                            <p class="project-client">대전교육정보원</p>
+                            <p class="project-period">2023.03 - 04</p>
+                            <div class="project-tags">
+                                <span class="tag web">웹</span>
+                                <span class="tag infra">인프라</span>
+                            </div>
+                            <p class="project-desc">교육기관 시스템의 보안성검토를 완료했습니다.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6 project-item" data-category="web">
+                    <div class="project-card">
+                        <div class="project-info">
+                            <h3 class="project-title">문화재청 웹 취약점 진단</h3>
+                            <p class="project-client">문화재청</p>
+                            <p class="project-period">2023.02 - 03</p>
+                            <div class="project-tags">
+                                <span class="tag web">웹</span>
+                            </div>
+                            <p class="project-desc">정부기관 웹사이트의 취약점 전수조사를 수행했습니다.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2022년 프로젝트 -->
+                <div class="col-lg-6 project-item" data-category="web app infra">
+                    <div class="project-card">
+                        <div class="project-info">
+                            <h3 class="project-title">대형 카드사 마이데이터 진단</h3>
+                            <p class="project-client">국내 주요 카드사</p>
+                            <p class="project-period">2022.10 - 11</p>
+                            <div class="project-tags">
+                                <span class="tag web">웹</span>
+                                <span class="tag app">앱</span>
+                                <span class="tag infra">인프라</span>
+                            </div>
+                            <p class="project-desc">마이데이터 서비스를 위한 진단 스크립트를 개발했습니다.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6 project-item" data-category="web">
+                    <div class="project-card">
+                        <div class="project-info">
+                            <h3 class="project-title">경기도청 웹 취약점 진단</h3>
+                            <p class="project-client">경기도청</p>
+                            <p class="project-period">2022.08 - 09</p>
+                            <div class="project-tags">
+                                <span class="tag web">웹</span>
+                            </div>
+                            <p class="project-desc">지방자치단체 웹사이트 보안성검토를 수행했습니다.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6 project-item" data-category="web hacking">
+                    <div class="project-card">
+                        <div class="project-info">
+                            <h3 class="project-title">식품의약품안전처 웹 모의해킹</h3>
+                            <p class="project-client">식품의약품안전처</p>
+                            <p class="project-period">2022.07</p>
+                            <div class="project-tags">
+                                <span class="tag web">웹</span>
+                                <span class="tag hacking">모의해킹</span>
+                            </div>
+                            <p class="project-desc">정부기관 웹사이트의 모의해킹을 수행했습니다.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6 project-item" data-category="web">
+                    <div class="project-card">
+                        <div class="project-info">
+                            <h3 class="project-title">국민건강보험공단 웹 취약점 진단</h3>
+                            <p class="project-client">국민건강보험공단</p>
+                            <p class="project-period">2022.02 - 06</p>
+                            <div class="project-tags">
+                                <span class="tag web">웹</span>
+                            </div>
+                            <p class="project-desc">공공기관 웹사이트 보안 진단을 완료했습니다.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 경력 섹션 -->
+    <section id="experience" class="experience-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 mx-auto text-center mb-5">
+                    <h2 class="section-title">경력 이력</h2>
+                    <p class="section-subtitle">정보보안 전문가로서의 성장 과정</p>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-lg-10 mx-auto">
+                    <div class="experience-timeline">
+                        <!-- 2025년 -->
+                        <div class="timeline-item">
+                            <div class="timeline-period">
+                                <span class="period-badge current">2025</span>
+                            </div>
+                            <div class="timeline-content">
+                                <h3 class="timeline-title">㈜윈스 - 대형 통신사 K사 전담 프로젝트</h3>
+                                <p></p>
+                                <ul class="timeline-details">
+                                    <li>대형 통신사 K그룹 ITO 통합보안검증 지속 수행</li>
+                                    <li>웹/모바일/클라우드/인프라 전 영역 보안성검토</li>
+                                    <li>전담 컨설턴트로서 장기 프로젝트 안정적 운영</li>
+                                    <li>통신사 그룹 보안 수준 지속적 향상 기여</li>
+                                    <li>신규 보안 기술 도입 및 적용 검토</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- 2024년 -->
+                        <div class="timeline-item">
+                            <div class="timeline-period">
+                                <span class="period-badge">2024</span>
+                            </div>
+                            <div class="timeline-content">
+                                <h3 class="timeline-title">보안 전문성 심화 및 K그룹 프로젝트 확대</h3>
+                                <p></p>
+                                <p class="timeline-company">㈜윈스 & 보안 커뮤니티 활동</p>
+                                <ul class="timeline-details">
+                                    <li>K그룹 통합보안검증 프로젝트 안정화 및 확대</li>
+                                    <li><strong>화이트햇 투게더 2024 참여</strong> - 최신 보안 트렌드 학습 및 네트워킹</li>
+                                    <li><strong>버그바운티 프로그램 참여</strong> - 실제 서비스 취약점 발견 및 신고</li>
+                                    <li>PL 대무 역할 확대로 프로젝트 관리 역량 강화</li>
+                                    <li>신규 취약점 연구: AI Prompt Injection, Unity Command Injection 등</li>
+                                    <li>사내 업무평가에서 지속적인 고득점 달성</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- 2023년 -->
+                        <div class="timeline-item">
+                            <div class="timeline-period">
+                                <span class="period-badge">2023</span>
+                            </div>
+                            <div class="timeline-content">
+                                <h3 class="timeline-title">㈜윈스 정보보안 컨설팅팀</h3>
+                                <p></p>
+                                <ul class="timeline-details">
+                                    <li>K그룹 ITO 통합보안검증 프로젝트 시작</li>
+                                    <li>PL 대무 역할 수행으로 프로젝트 관리 능력 입증</li>
+                                    <li>문화재청, 대전교육정보원 등 정부기관 프로젝트 성공적 완료</li>
+                                    <li>신규 취약점 발견으로 업무평가 점수 향상에 기여</li>
+                                    <li>타 검증원 대비 높은 Critical 취약점 발견율 달성</li>
+                                    <li>AWS CLI를 통한 S3 버킷 서버 접근, Geoserver SQL Injection 등 발견</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- 2022년 -->
+                        <div class="timeline-item">
+                            <div class="timeline-period">
+                                <span class="period-badge">2022</span>
+                            </div>
+                            <div class="timeline-content">
+                                <h3 class="timeline-title">㈜윈스 정보보안 컨설팅팀 입사</h3>
+                                <p></p>
+                                <ul class="timeline-details">
+                                    <li>윈스 정보보안 컨설팅팀 입사</li>
+                                    <li>웹/모바일 취약점 진단 및 모의해킹 업무 시작</li>
+                                    <li>국민건강보험공단, 국내 카드사, 경기도청, 식품의약품안전처 등 프로젝트 수행</li>
+                                    <li>마이데이터 인프라 진단 스크립트 개발 및 결과 분석 프로그램 작성</li>
+                                    <li>실무 진단 도구 활용법 가이드 작성 및 교육</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- 대외 프로젝트 -->
+                        <div class="timeline-item">
+                            <div class="timeline-period">
+                                <span class="period-badge project">기타</span>
+                                <p></p>
+                            </div>
+                            <div class="timeline-content">
+                                <h3 class="timeline-title">전문 교육 과정 및 연구 프로젝트</h3>
+                                <ul class="timeline-details">
+                                    <li><strong>K-Shield Jr</strong> - 정보보호 관리진단 과정 수료(팀장)</li>
+                                    <li><strong>한이음 ICT 프로젝트</strong> - "디바이스 드라이버를 활용한 랩톱 보안 소프트웨어" 개발(팀장)</li>
+                                    <li><strong>추계학술대회 논문 게재</strong> - "디바이스 드라이버를 활용한 랩톱 보안" 논문 발표 및 게재</li>
+                                    <li><strong>정보처리기사 자격증 취득</strong></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 연락처 섹션 -->
+    <section id="contact" class="contact-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 mx-auto text-center mb-5">
+                    <h2 class="section-title">연락처</h2>
+                </div>
+            </div>
+        
+            <div class="contact-grid">
+                <div class="contact-item">
+                    <div class="contact-icon">
+                        <i class="bi bi-envelope"></i>
+                    </div>
+                    <div class="contact-info">
+                        <h4>이메일</h4>
+                        <p>jwchoi1066@naver.com</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Bootstrap 5 JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JavaScript -->
+    <script src="script.js"></script>
+</body>
+</html>
