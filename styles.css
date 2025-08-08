@@ -1,0 +1,1156 @@
+/* 밝고 친근한 색상의 새로운 디자인 */
+:root {
+    /* 메인 컬러: 부드러운 하늘색/파란색 계열 */
+    --primary-color: #4a90e2;
+    --primary-light: #6bb6ff;
+    --primary-dark: #357abd;
+    
+    /* 보조 컬러: 따뜻한 코랄/오렌지 계열 */
+    --accent-color: #ff8c69;
+    --accent-light: #ffa07a;
+    
+    /* 중성 컬러 */
+    --success-color: #32cd32;
+    --warning-color: #ffd700;
+    --info-color: #87ceeb;
+    
+    /* 배경 컬러 */
+    --bg-white: #ffffff;
+    --bg-light: #f8fbff;
+    --bg-soft: #f0f8ff;
+    
+    /* 텍스트 컬러 */
+    --text-dark: #2c3e50;
+    --text-medium: #5d6d7e;
+    --text-light: #85929e;
+    
+    /* 경계선 */
+    --border-color: #e3f2fd;
+    --border-light: #f0f8ff;
+    
+    /* 그림자 */
+    --shadow-light: 0 2px 10px rgba(74, 144, 226, 0.1);
+    --shadow-medium: 0 4px 20px rgba(74, 144, 226, 0.15);
+    --shadow-strong: 0 8px 30px rgba(74, 144, 226, 0.2);
+}
+
+/* 기본 설정 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    line-height: 1.6;
+    color: var(--text-dark);
+    background: var(--bg-white);
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+/* 네비게이션 */
+.custom-navbar {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border-color);
+    padding: 1rem 0;
+    transition: all 0.3s ease;
+}
+
+.navbar-brand {
+    font-weight: 600;
+    color: var(--primary-color) !important;
+    font-size: 1.2rem;
+}
+
+.brand-text {
+    color: var(--text-dark) !important;
+}
+
+.nav-link {
+    font-weight: 500;
+    color: var(--text-medium) !important;
+    margin: 0 0.5rem;
+    padding: 0.5rem 1rem !important;
+    border-radius: 25px;
+    transition: all 0.3s ease;
+}
+
+.nav-link:hover,
+.nav-link.active {
+    color: var(--primary-color) !important;
+    background: var(--bg-soft);
+}
+
+/* 히어로 섹션 */
+.hero-section {
+    background: linear-gradient(135deg, var(--bg-white) 0%, var(--bg-light) 100%);
+    padding: 120px 0 80px;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+}
+
+.hero-badge {
+    display: inline-flex;
+    align-items: center;
+    background: var(--bg-soft);
+    color: var(--primary-color);
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-bottom: 1.5rem;
+    border: 1px solid var(--border-color);
+}
+
+.hero-title {
+    font-size: 3.5rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 1.5rem;
+    line-height: 1.2;
+}
+
+.highlight {
+    color: var(--primary-color);
+    position: relative;
+}
+
+.hero-description {
+    font-size: 1.2rem;
+    color: var(--text-medium);
+    margin-bottom: 2rem;
+    line-height: 1.7;
+}
+
+.hero-stats {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 2.5rem;
+    flex-wrap: wrap;
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 0.25rem;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: var(--text-light);
+    font-weight: 500;
+}
+
+.hero-buttons {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.btn {
+    padding: 0.75rem 2rem;
+    border-radius: 50px;
+    font-weight: 500;
+    border: none;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+}
+
+.btn-primary {
+    background: var(--primary-color);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-medium);
+    color: white;
+}
+
+.btn-outline {
+    background: transparent;
+    color: var(--primary-color);
+    border: 2px solid var(--primary-color);
+}
+
+.btn-outline:hover {
+    background: var(--primary-color);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-medium);
+}
+
+/* 히어로 비주얼 */
+.hero-visual {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+.visual-card {
+    background: white;
+    border-radius: 20px;
+    padding: 3rem 2rem;
+    box-shadow: var(--shadow-medium);
+    border: 1px solid var(--border-color);
+    text-align: center;
+    max-width: 350px;
+    transform: rotate(3deg);
+    transition: transform 0.3s ease;
+}
+
+.visual-card:hover {
+    transform: rotate(0deg) translateY(-5px);
+    box-shadow: var(--shadow-strong);
+}
+
+.visual-icon {
+    width: 80px;
+    height: 80px;
+    background: var(--bg-soft);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    border: 2px solid var(--border-color);
+}
+
+.visual-icon i {
+    font-size: 2.5rem;
+    color: var(--primary-color);
+}
+
+.visual-content h3 {
+    color: var(--text-dark);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.visual-content p {
+    color: var(--text-medium);
+    font-size: 0.9rem;
+}
+
+/* 🔥 기술스택 카드 스타일 */
+.tech-stack-card {
+    background: white;
+    border-radius: 20px;
+    padding: 3rem 2rem;
+    box-shadow: var(--shadow-medium);
+    border: 1px solid var(--border-color);
+    text-align: center;
+    max-width: 350px;
+    transform: rotate(3deg);
+    transition: transform 0.3s ease;
+}
+
+.tech-stack-card:hover {
+    transform: rotate(0deg) translateY(-5px);
+    box-shadow: var(--shadow-strong);
+}
+
+.tech-header {
+    margin-bottom: 1.5rem;
+}
+
+.tech-header .header-icon {
+    width: 60px;
+    height: 60px;
+    background: var(--bg-soft);
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    border: 2px solid var(--border-color);
+}
+
+.tech-header .header-icon i {
+    font-size: 1.8rem;
+    color: var(--primary-color);
+}
+
+.tech-header h3 {
+    color: var(--text-dark);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    font-size: 1.2rem;
+}
+
+.tech-header p {
+    color: var(--text-medium);
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+.tech-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.8rem;
+    margin-bottom: 1.5rem;
+}
+
+.tech-item {
+    background: var(--bg-light);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 0.8rem 0.5rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.tech-item:hover {
+    transform: scale(1.05) translateY(-2px);
+    box-shadow: var(--shadow-light);
+    background: white;
+    border-color: var(--primary-color);
+}
+
+.tech-item:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+}
+
+.tech-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    margin-bottom: 0.4rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+}
+
+/* 기술별 색상 */
+.tech-icon.web {
+    background: linear-gradient(135deg, #61dafb, #21759b);
+}
+
+.tech-icon.mobile {
+    background: linear-gradient(135deg, #a4c639, #6a8c3a);
+}
+
+.tech-icon.cloud {
+    background: linear-gradient(135deg, #ff9900, #232f3e);
+}
+
+.tech-icon.ai {
+    background: linear-gradient(135deg, #ff6b35, #9b59b6);
+}
+
+.tech-icon.python {
+    background: linear-gradient(135deg, #3776ab, #ffd43b);
+}
+
+.tech-icon.js {
+    background: linear-gradient(135deg, #f7df1e, #323330);
+}
+
+.tech-name {
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: var(--text-dark);
+    margin: 0;
+}
+
+.tech-footer {
+    text-align: center;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-light);
+}
+
+.tech-footer .experience-badge {
+    display: inline-flex;
+    align-items: center;
+    background: var(--primary-color);
+    color: white;
+    padding: 0.4rem 1rem;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+/* 기술스택 알림 */
+.tech-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: white;
+    color: var(--text-dark);
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
+    font-size: 14px;
+    z-index: 9999;
+    border: 2px solid var(--primary-color);
+    box-shadow: 0 8px 25px rgba(74, 144, 226, 0.2);
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    max-width: 320px;
+    line-height: 1.4;
+}
+
+.tech-notification .notification-header {
+    font-weight: 600;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+}
+
+.tech-notification .notification-body {
+    color: var(--text-medium);
+    font-size: 0.9rem;
+}
+
+/* 소개 섹션 */
+.about-section {
+    padding: 80px 0;
+    background: var(--bg-light);
+}
+
+.section-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 1rem;
+}
+
+.section-subtitle {
+    font-size: 1.1rem;
+    color: var(--text-medium);
+    margin-bottom: 2rem;
+}
+
+.service-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 15px;
+    border: 1px solid var(--border-color);
+    height: 100%;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.service-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-medium);
+    border-color: var(--primary-light);
+}
+
+.service-icon {
+    width: 60px;
+    height: 60px;
+    background: var(--bg-soft);
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    border: 2px solid var(--border-color);
+    transition: all 0.3s ease;
+}
+
+.service-card:hover .service-icon {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.service-icon i {
+    font-size: 1.5rem;
+    color: var(--primary-color);
+    transition: color 0.3s ease;
+}
+
+.service-card:hover .service-icon i {
+    color: white;
+}
+
+.service-card h4 {
+    color: var(--text-dark);
+    font-weight: 600;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+}
+
+.service-card p {
+    color: var(--text-medium);
+    font-size: 0.9rem;
+    line-height: 1.6;
+}
+
+/* 프로젝트 섹션 */
+.projects-section {
+    padding: 80px 0;
+    background: white;
+}
+
+.filter-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    padding: 0.75rem 1.5rem;
+    border: 2px solid var(--border-color);
+    background: white;
+    color: var(--text-medium);
+    border-radius: 50px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.filter-btn:hover,
+.filter-btn.active {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+    transform: translateY(-2px);
+}
+
+.project-card {
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: 15px;
+    padding: 2rem;
+    height: 100%;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.project-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-medium);
+    border-color: var(--primary-light);
+}
+
+.project-card.featured {
+    border: 2px solid var(--primary-color);
+    background: linear-gradient(135deg, white 0%, var(--bg-soft) 100%);
+}
+
+.project-status {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: var(--success-color);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.project-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
+}
+
+.project-client {
+    color: var(--text-medium);
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.project-period {
+    color: var(--text-light);
+    font-size: 0.85rem;
+    margin-bottom: 1rem;
+}
+
+.project-tags {
+    margin-bottom: 1rem;
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.project-tags .tag {
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    display: inline-block;
+}
+
+/* 프로젝트 태그 스타일 */
+.tag {
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    display: inline-block;
+    margin-right: 0.5rem;
+    margin-bottom: 0.25rem;
+}
+
+.tag.web {
+    background: #e8f5e8;
+    color: #2e7d2e;
+    border: 1px solid #c8e6c9;
+}
+
+.tag.app {
+    background: #e3f2fd;
+    color: #1976d2;
+    border: 1px solid #bbdefb;
+}
+
+.tag.cloud {
+    background: #fff8e1;
+    color: #f57c00;
+    border: 1px solid #ffecb3;
+}
+
+.tag.infra {
+    background: #fce4ec;
+    color: #c2185b;
+    border: 1px solid #f8bbd9;
+}
+
+.tag.hacking {
+    background: #f3e5f5;
+    color: #7b1fa2;
+    border: 1px solid #e1bee7;
+}
+
+.project-desc {
+    color: var(--text-medium);
+    font-size: 0.9rem;
+    line-height: 1.6;
+}
+
+/* 경력 섹션 */
+.experience-section {
+    padding: 80px 0;
+    background: var(--bg-light);
+}
+
+.experience-timeline {
+    position: relative;
+    padding: 2rem 0;
+}
+
+.experience-timeline::before {
+    content: '';
+    position: absolute;
+    left: 2rem;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: linear-gradient(to bottom, var(--primary-color), var(--primary-light));
+    border-radius: 3px;
+}
+
+.timeline-item {
+    display: flex;
+    margin-bottom: 3rem;
+    align-items: flex-start;
+    gap: 2rem;
+}
+
+.timeline-period {
+    flex-shrink: 0;
+    width: 200px;
+    text-align: center;
+}
+
+.period-badge {
+    display: inline-block;
+    background: white;
+    color: var(--primary-color);
+    padding: 0.5rem 1rem;
+    border-radius: 25px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border: 2px solid var(--primary-color);
+    position: relative;
+    z-index: 2;
+}
+
+.period-badge.current {
+    background: var(--primary-color);
+    color: white;
+}
+
+.period-badge.project {
+    background: var(--info-color);
+    border-color: var(--info-color);
+    color: white;
+}
+
+.timeline-content {
+    background: white;
+    padding: 2rem;
+    border-radius: 15px;
+    border: 1px solid var(--border-color);
+    flex: 1;
+    transition: all 0.3s ease;
+}
+
+.timeline-content:hover {
+    transform: translateX(5px);
+    box-shadow: var(--shadow-medium);
+    border-color: var(--primary-light);
+}
+
+.timeline-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 0.5rem;
+}
+
+.timeline-company {
+    color: var(--text-medium);
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    font-weight: 500;
+}
+
+.timeline-details {
+    list-style: none;
+    padding: 0;
+}
+
+.timeline-details li {
+    color: var(--text-medium);
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+    padding-left: 1.5rem;
+    position: relative;
+}
+
+.timeline-details li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.7rem;
+    width: 6px;
+    height: 6px;
+    background: var(--primary-color);
+    border-radius: 50%;
+}
+
+/* 🔥 연락처 섹션 - 특별한 UI/이펙트가 추가된 이메일 카드 */
+.contact-section {
+    padding: 80px 0;
+    background: white;
+    position: relative;
+    overflow: hidden;
+}
+
+.contact-section::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(74, 144, 226, 0.03) 0%, transparent 70%);
+    animation: rotate 20s linear infinite;
+}
+
+.contact-grid {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    z-index: 2;
+}
+
+.contact-item {
+    background: linear-gradient(135deg, white 0%, var(--bg-light) 100%);
+    padding: 2.5rem 3rem;
+    border-radius: 20px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    cursor: pointer;
+    width: 100%;
+    max-width: 400px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(74, 144, 226, 0.1);
+}
+
+.contact-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    transition: left 0.6s;
+}
+
+.contact-item:hover::before {
+    left: 100%;
+}
+
+.contact-item:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 20px 60px rgba(74, 144, 226, 0.2);
+    border-color: var(--primary-color);
+}
+
+.contact-item:hover .contact-icon {
+    background: var(--primary-color);
+    transform: scale(1.1) rotate(5deg);
+    box-shadow: 0 8px 25px rgba(74, 144, 226, 0.3);
+}
+
+.contact-item:hover .contact-icon i {
+    color: white;
+    animation: bounce 0.6s ease-in-out;
+}
+
+.contact-item:hover .contact-info h4 {
+    color: var(--primary-color);
+    transform: translateX(5px);
+}
+
+.contact-item:hover .contact-info p {
+    transform: translateX(5px);
+    color: var(--text-dark);
+}
+
+.contact-icon {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, var(--bg-soft), white);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border: 3px solid var(--border-color);
+    position: relative;
+}
+
+.contact-icon::after {
+    content: '';
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 8px;
+    height: 8px;
+    background: var(--success-color);
+    border-radius: 50%;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.contact-item:hover .contact-icon::after {
+    opacity: 1;
+    animation: pulse 2s infinite;
+}
+
+.contact-icon i {
+    font-size: 2.2rem;
+    color: var(--primary-color);
+    transition: all 0.3s ease;
+}
+
+.contact-info {
+    text-align: left;
+    flex: 1;
+}
+
+.contact-info h4 {
+    color: var(--text-dark);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    font-size: 1.3rem;
+    transition: all 0.3s ease;
+}
+
+.contact-info p {
+    color: var(--text-medium);
+    font-size: 1rem;
+    margin: 0;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    letter-spacing: 0.5px;
+}
+
+/* 추가 애니메이션 */
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes bounce {
+    0%, 20%, 60%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-10px);
+    }
+    80% {
+        transform: translateY(-5px);
+    }
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.2);
+        opacity: 0.7;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* CTA 스타일 추가 */
+.contact-item::after {
+    content: 'Click to copy';
+    position: absolute;
+    bottom: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--primary-color);
+    color: white;
+    padding: 0.3rem 0.8rem;
+    border-radius: 15px;
+    font-size: 0.7rem;
+    font-weight: 500;
+    opacity: 0;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.contact-item:hover::after {
+    opacity: 1;
+    bottom: -25px;
+}
+
+.contact-item:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-medium);
+    border-color: var(--primary-light);
+    background: white;
+}
+
+.contact-icon {
+    width: 60px;
+    height: 60px;
+    background: var(--primary-color);
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.contact-icon i {
+    font-size: 1.5rem;
+    color: white;
+}
+
+.contact-info h4 {
+    color: var(--text-dark);
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    font-size: 1.1rem;
+}
+
+.contact-info p {
+    color: var(--text-medium);
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+/* 푸터 */
+.footer {
+    background: var(--bg-light);
+    padding: 2rem 0;
+    border-top: 1px solid var(--border-color);
+    text-align: center;
+}
+
+.footer p {
+    color: var(--text-light);
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .hero-title {
+        font-size: 2.5rem;
+    }
+    
+    .hero-stats {
+        justify-content: center;
+        gap: 1.5rem;
+    }
+    
+    .hero-buttons {
+        justify-content: center;
+    }
+    
+    .section-title {
+        font-size: 2rem;
+    }
+    
+    .timeline-item {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+    }
+    
+    .timeline-period {
+        width: 100%;
+    }
+    
+    .experience-timeline::before {
+        display: none;
+    }
+    
+    .filter-tabs {
+        gap: 0.25rem;
+    }
+    
+    .filter-btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.85rem;
+    }
+    
+    /* 🔥 기술스택 모바일 반응형 */
+    .tech-stack-card {
+        transform: none;
+        margin-top: 2rem;
+        padding: 2rem 1.5rem;
+        max-width: none;
+    }
+    
+    .tech-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.6rem;
+    }
+    
+    .tech-icon {
+        width: 28px;
+        height: 28px;
+        font-size: 1rem;
+    }
+    
+    .tech-name {
+        font-size: 0.65rem;
+    }
+    
+    .tech-header h3 {
+        font-size: 1.1rem;
+    }
+    
+    .tech-notification {
+        right: 10px;
+        left: 10px;
+        max-width: none;
+        transform: translateY(-100%);
+    }
+    
+    /* 🔥 연락처 모바일 반응형 - 수정된 부분 */
+    .contact-grid {
+        flex-direction: column;
+        gap: 1rem;
+        max-width: 100%;
+    }
+    
+    .contact-item {
+        max-width: none;
+        width: 100%;
+        justify-content: center;
+        text-align: center;
+        flex-direction: column;
+    }
+}
+
+/* 스크롤바 스타일 */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-light);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-dark);
+}
+
+/* 애니메이션 */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.hero-content {
+    animation: fadeInUp 0.8s ease-out;
+}
+
+/* 프로젝트 필터링 */
+.project-item {
+    transition: all 0.4s ease;
+}
+
+.project-item.hidden {
+    opacity: 0;
+    transform: scale(0.9);
+    display: none;
+}
