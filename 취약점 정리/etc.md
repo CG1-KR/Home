@@ -355,7 +355,7 @@ function send_security_alert($affected_users) {
 
 
 
-<details><summary><strong>파일 업로드 취약점 (AWS S3 무인증 접근)</strong></summary>
+<details><summary><strong>AWS S3 무인증 접근</strong></summary>
 
 ## 목차
 1. [정의&원리](#1-정의원리)
@@ -365,7 +365,7 @@ function send_security_alert($affected_users) {
 
 ## 1. 정의&원리
 
-### 파일 업로드 취약점이란?
+### AWS S3 무인증 접근 취약점이란?
 AWS S3 버킷이 잘못 구성되어 `--no-sign-request` 옵션을 통해 인증 없이 접근 가능할 때 발생하는 취약점입니다. 공격자가 AWS CLI를 사용하여 인증 절차 없이 S3 버킷에 접근하여 파일 업로드, 다운로드, 나열 등의 작업을 수행할 수 있습니다.
 
 ### 취약점 발생 위치
