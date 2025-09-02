@@ -353,7 +353,7 @@ function send_security_alert($affected_users) {
 
 ㅡㅡㅡ
 ㅡㅡㅡ
-
+</details>
 
 
 <details>
