@@ -378,10 +378,6 @@ AWS S3 버킷이 잘못 구성되어 `--no-sign-request` 옵션을 통해 인증
 
 #### 1단계: AWS CLI 설치 및 버킷 접근
 ```bash
-# AWS CLI 설치
-curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-unzip awscliv2.zip
-sudo ./aws/install
 
 # 무인증 버킷 접근 테스트
 aws s3 ls s3://test_s3_URL --no-sign-request --no-verify-ssl
