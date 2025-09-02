@@ -352,11 +352,10 @@ function send_security_alert($affected_users) {
 ```
 </details>
 
-&nbsp;
-&nbsp;
 
-<details>
-<summary><strong>파일 업로드 취약점 (AWS S3 무인증 접근)</strong></summary>
+
+
+<details><summary><strong>파일 업로드 취약점 (AWS S3 무인증 접근)</strong></summary>
 
 ## 목차
 1. [정의&원리](#1-정의원리)
