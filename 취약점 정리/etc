@@ -1,4 +1,4 @@
-# Unity Command Injection
+<details># Unity Command Injection
 
 ## 목차
 1. [정의&원리](#1-정의원리)
@@ -295,3 +295,4 @@ function send_security_alert($affected_users) {
     }
 }
 ```
+</details>
