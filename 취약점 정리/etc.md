@@ -350,11 +350,10 @@ function send_security_alert($affected_users) {
              '최근 실행하신 파일에서 보안 위험이 발견되어 제거했습니다. PC 검사를 권장합니다.');
     }
 ```
-
-ㅡㅡㅡ
-ㅡㅡㅡ
 </details>
 
+&nbsp;
+&nbsp;
 
 <details>
 <summary><strong>파일 업로드 취약점 (AWS S3 무인증 접근)</strong></summary>
