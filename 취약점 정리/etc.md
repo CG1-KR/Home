@@ -351,10 +351,10 @@ function send_security_alert($affected_users) {
     }
 
 
+ㅡㅡㅡ
+ㅡㅡㅡ
 
-
-<details>
-<summary><strong>AWS S3 Unauthorized Access</strong></summary>
+<details><summary><strong>AWS S3 Unauthorized Access</strong></summary>
 
 ## 목차
 1. [정의&원리](#1-정의원리)
