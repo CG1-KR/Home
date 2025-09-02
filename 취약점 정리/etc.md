@@ -616,9 +616,5 @@ aws s3api put-bucket-encryption \
     --server-side-encryption-configuration \
     '{"Rules":[{"ApplyServerSideEncryptionByDefault":{"SSEAlgorithm":"AES256"}}]}'
 ```
-
-</details>
 }
-```
-
 </details>
