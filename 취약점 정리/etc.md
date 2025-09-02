@@ -354,6 +354,8 @@ function send_security_alert($affected_users) {
 ㅡㅡㅡ
 ㅡㅡㅡ
 
+```
+
 <details>
 <summary><strong>파일 업로드 취약점 (AWS S3 무인증 접근)</strong></summary>
 
